@@ -12,7 +12,7 @@ object HiveTest extends Logging {
   def main(args: Array[String]) {
     /**
       * 1 clean ./metastore_db
-      * 2 rm -r hdfs:///tmp/parquet_data  hdfs://localhost:9000/Users/apple/workspaces/sparks/myspark/spark-warehouse
+      * 2 rm -r hdfs:///tmp/parquet_data  hdfs://localhost:9000/user/spark/spark-warehouse
       */
     // warehouseLocation points to the default location for managed databases and tables
 //    val warehouseLocation = new File("spark-warehouse").getAbsolutePath
