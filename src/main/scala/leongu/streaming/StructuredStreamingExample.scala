@@ -6,7 +6,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
 object StructuredStreamingExample extends Logging {
 
-  case class Person(name: String, age: Long, job: String)
+  case class Person(name: String, age: Option[Long], job: String)
 
   def main(args: Array[String]) {
     val spark = SparkSession
@@ -96,20 +96,24 @@ object StructuredStreamingExample extends Logging {
   }
 
   def basicds(spark: SparkSession): Unit = {
+    val userSchema = new StructType().add("name", "string").add("age", "integer").add("job", "string")
     val df: DataFrame = spark
       .readStream
       .option("sep", ";")
+      .schema(userSchema)
       .csv("file:///Users/apple/workspaces/sparks/myspark/src/main/resources/csv") // Equivalent to format("csv").load("/path/to/directory")
     // execute while new file created in the path
 
     import spark.implicits._
     val ds: Dataset[Person] = df.as[Person]
 
-    ds.filter(_.age > 30).map(_.name) // using typed APIs
+    ds.filter(_.age.map(_ > 30).getOrElse(false)).map(_.name)// using typed APIs
+//    ds.filter(_.age > 30).map(_.name) // using typed APIs
 
     // Running average signal for each device type
     import org.apache.spark.sql.expressions.scalalang.typed
-    var cntDf = ds.groupByKey(_.job).agg(typed.avg(_.age)) // using typed API
+    var cntDf = ds.groupByKey(_.job).agg(typed.avg(_.age.get))
+//    var cntDf = ds.groupByKey(_.job).agg(typed.avg(_.age))
 
     // ---------------------------------------------
 
