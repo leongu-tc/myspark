@@ -1,5 +1,6 @@
 package leongu.sql
 
+import leongu.Constants
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SparkSession}
@@ -18,19 +19,19 @@ object SparkSqlExample extends Logging{
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
-    interOperWithRDDs2(spark);
+    createDataFrames(spark);
 
     println("done!")
   }
 
   def createDataFrames(spark: SparkSession): Unit = {
-    val df = spark.read.json("file:///Users/apple/workspaces/sparks/spark/examples/src/main/resources/people.json")
+    val df = spark.read.json("file://" + Constants.prefix + "people.json")
     // Displays the content of the DataFrame to stdout
     df.show()
   }
 
   def untypedDataSetOpers(spark: SparkSession): Unit = {
-    val df = spark.read.json("file:///Users/apple/workspaces/sparks/spark/examples/src/main/resources/people.json")
+    val df = spark.read.json("file://" + Constants.prefix + "people.json")
     import spark.implicits._
     // Print the schema in a tree format
     df.printSchema()
@@ -44,7 +45,7 @@ object SparkSqlExample extends Logging{
     df.groupBy("age").count().show()
   }
   def sqlQuery(spark: SparkSession): Unit = {
-    val df = spark.read.json("file:///Users/apple/workspaces/sparks/spark/examples/src/main/resources/people.json")
+    val df = spark.read.json("file://" + Constants.prefix + "people.json")
     // Register the DataFrame as a SQL temporary view
     df.createOrReplaceTempView("people")
     val sqlDF = spark.sql("SELECT * FROM people")
@@ -52,7 +53,7 @@ object SparkSqlExample extends Logging{
   }
 
   def globalTempView(spark: SparkSession): Unit = {
-    val df = spark.read.json("file:///Users/apple/workspaces/sparks/spark/examples/src/main/resources/people.json")
+    val df = spark.read.json("file://" + Constants.prefix + "people.json")
     // Register the DataFrame as a global temporary view
     df.createGlobalTempView("people")
     // Global temporary view is tied to a system preserved database `global_temp`
@@ -75,7 +76,7 @@ object SparkSqlExample extends Logging{
 
 
     // DataFrames can be converted to a Dataset by providing a class. Mapping will be done by name
-    val path = "file:///Users/apple/workspaces/sparks/spark/examples/src/main/resources/people.json"
+    val path = "file://" + Constants.prefix + "people.json"
     val peopleDS = spark.read.json(path).as[Person]
     peopleDS.show()
   }
@@ -88,7 +89,7 @@ object SparkSqlExample extends Logging{
     // Create an RDD of Person objects from a text file, convert it to a Dataframe
     val peopleDF = spark.sparkContext
 //      .textFile("/user/spark/my/people.json")
-      .textFile("file:///Users/apple/workspaces/sparks/spark/examples/src/main/resources/people.txt")
+      .textFile("file://" + Constants.prefix + "people.txt")
       .map(_.split(","))
       .map(attributes => Person(attributes(0), attributes(1).trim.toInt))
       .toDF()
