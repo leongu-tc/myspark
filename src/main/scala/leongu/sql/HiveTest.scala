@@ -1,7 +1,6 @@
 package leongu.sql
 
-import java.io.File
-
+import leongu.Constants
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 
@@ -15,7 +14,7 @@ object HiveTest extends Logging {
       * 2 rm -r hdfs:///tmp/parquet_data  hdfs://localhost:9000/user/spark/spark-warehouse
       */
     // warehouseLocation points to the default location for managed databases and tables
-//    val warehouseLocation = new File("spark-warehouse").getAbsolutePath
+    //    val warehouseLocation = new File("spark-warehouse").getAbsolutePath
     val warehouseLocation = "/user/spark/spark-warehouse";
 
     logInfo("------ warehouseLocation " + warehouseLocation)
@@ -34,7 +33,7 @@ object HiveTest extends Logging {
     import spark.sql
 
     sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
-    sql("LOAD DATA LOCAL INPATH '/Users/apple/workspaces/sparks/spark/examples/src/main/resources/kv1.txt' INTO TABLE src")
+    sql("LOAD DATA LOCAL INPATH '" + Constants.prefix + "kv1.txt' INTO TABLE src")
 
     // Queries are expressed in HiveQL
     sql("SELECT * FROM src").show()
