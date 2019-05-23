@@ -1,14 +1,12 @@
 package leongu.streaming
 
-import java.sql.Timestamp
-
 import leongu.Constants
 import org.apache.spark.internal.Logging
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
 object JoinExample extends Logging {
 
-  case class Person(name: String, age: Option[Long], job: String)
+  case class Person(name: String, salary: Long, job: String)
 
   def main(args: Array[String]) {
     val spark = SparkSession
@@ -26,24 +24,40 @@ object JoinExample extends Logging {
   }
 
   def socketsource(spark: SparkSession): Unit = {
-    val staticDf = spark.read.json("file://" + Constants.prefix + "people.json")
+    val staticDf = spark.read.json("file:///Users/apple/workspaces/sparks/myspark/src/main/resources/people.json")
     val streamingDf = spark
       .readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
       .option("subscribe", "topic1")
       .load()
+    staticDf.printSchema()
+    import spark.implicits._
+    val lineRDD: Dataset[String] = streamingDf.selectExpr("CAST(value AS STRING)").as[String]
+    implicit val matchError = org.apache.spark.sql.Encoders.kryo[Row]
+    //处理成Row
+    val ds = lineRDD.map(_.split(","))
+      .map(attributes => {
+        try {
+          Person(attributes(0), attributes(1).trim.toInt, attributes(2))
+        }
+        catch {
+          case e1: Exception => {
+            println(attributes)
+            Person("Nil", 0, "Nil")
+          }
+        }
+      })
 
-//    val line = streamingDf.selectExpr("CAST(value AS STRING)").as[String]
-//    line.flatMap(_.split(" ")).toDF("")
+    val rowdf = ds.toDF()
+    rowdf.printSchema()
 
 
-
-    val join = streamingDf.join(staticDf, "value") // inner equi-join with a static DF
+    val join = rowdf.join(staticDf, "name") // inner equi-join with a static DF
 
     // Start running the query that prints the running counts to the console
     val query = join.writeStream
-      .outputMode("complete")
+      .outputMode("append")
       .format("console")
       .start()
 
