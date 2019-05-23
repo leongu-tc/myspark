@@ -8,8 +8,6 @@ import org.apache.spark.sql.functions._
 
 object WindowExample extends Logging {
 
-  case class Person(name: String, age: Option[Long], job: String)
-
   def main(args: Array[String]) {
     val spark = SparkSession
       .builder()

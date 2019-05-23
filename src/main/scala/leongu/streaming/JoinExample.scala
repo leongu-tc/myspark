@@ -34,7 +34,8 @@ object JoinExample extends Logging {
       .option("subscribe", "topic1")
       .load()
 
-//    streamingDf.selectExpr("CAST(value AS STRING)").s
+//    val line = streamingDf.selectExpr("CAST(value AS STRING)").as[String]
+//    line.flatMap(_.split(" ")).toDF("")
 
 
 
