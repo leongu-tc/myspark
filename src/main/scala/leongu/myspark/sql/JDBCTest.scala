@@ -1,4 +1,4 @@
-package leongu.sql
+package leongu.myspark.sql
 
 import java.util.Properties
 

@@ -1,4 +1,4 @@
-package leongu.basic
+package leongu.myspark.basic
 
 object App {
   def main(args: Array[String]): Unit = {

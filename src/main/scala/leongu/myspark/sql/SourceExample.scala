@@ -1,4 +1,4 @@
-package leongu.sql
+package leongu.myspark.sql
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{SaveMode, SparkSession}

@@ -1,11 +1,13 @@
-package leongu.streaming
+package leongu.myspark.streaming
+
+import java.sql.Timestamp
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
-object KafkaExample extends Logging {
+object DeduplicationExample extends Logging {
 
-  case class Person(name: String, age: Long)
+  case class Person(name: String, age: Long, time: Timestamp)
 
   def main(args: Array[String]) {
     val spark = SparkSession
@@ -13,22 +15,22 @@ object KafkaExample extends Logging {
       // IDE 内启动
       .master("spark://localhost:7077")
       //      .master("local")
-      .appName("Kafka example")
+      .appName("Deduplication example")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
-    kafkatopic(spark);
+    withwm(spark);
 
     println("done!")
   }
 
-  def kafkatopic(spark: SparkSession): Unit = {
+  def withwm(spark: SparkSession): Unit = {
     // Subscribe to 1 topic
     val df = spark
       .readStream
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "topic1")
+      .option("subscribe", "topic2")
       .load()
 
     df.printSchema()
@@ -40,12 +42,12 @@ object KafkaExample extends Logging {
     val ds = lineRDD.map(_.split(","))
       .map(attributes => {
         try {
-          Person(attributes(0), attributes(1).trim.toInt)
+          Person(attributes(0), attributes(1).trim.toInt, Timestamp.valueOf(attributes(3)))
         }
         catch {
           case e1: Exception => {
             println(attributes)
-            Person("Nil", 0)
+            Person("Nil", 0, Timestamp.valueOf("1970-01-01 00:00:00"))
           }
         }
       })
@@ -53,29 +55,12 @@ object KafkaExample extends Logging {
     val rowdf = ds.toDF()
     rowdf.printSchema()
 
+    rowdf.withWatermark("time", "10 seconds")
+      .dropDuplicates("name")
     // Start running the query that prints the running counts to the console
     val query = rowdf.writeStream
       .outputMode("append")
       .format("console")
-      .start()
-
-    query.awaitTermination()
-  }
-
-  def kafkatokafkatopic(spark: SparkSession): Unit = {
-    // Subscribe to 1 topic
-    val df = spark
-      .readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "topic1")
-      .load()
-
-    val query = df.writeStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("topic", "topic2")
-      .option("checkpointLocation", "checkpoints")
       .start()
 
     query.awaitTermination()

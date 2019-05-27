@@ -1,6 +1,6 @@
-package leongu.sql
+package leongu.myspark.sql
 
-import leongu.Constants
+import leongu.myspark.Constants
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SparkSession}
