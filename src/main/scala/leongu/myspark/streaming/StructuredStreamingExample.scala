@@ -1,4 +1,4 @@
-package leongu.streaming
+package leongu.myspark.streaming
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types.StructType

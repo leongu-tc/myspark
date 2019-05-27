@@ -1,4 +1,4 @@
-package leongu.basic
+package leongu.myspark.basic
 
 import org.apache.spark._
 

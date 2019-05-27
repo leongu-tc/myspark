@@ -1,4 +1,4 @@
-package leongu.streaming
+package leongu.myspark.streaming
 
 import java.sql.Timestamp
 
@@ -14,7 +14,7 @@ object WindowExample extends Logging {
       // IDE 内启动
       .master("spark://localhost:7077")
       //      .master("local")
-      .appName("Structured Streaming example")
+      .appName("Window example")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
