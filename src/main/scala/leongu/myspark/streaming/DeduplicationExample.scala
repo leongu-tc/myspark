@@ -42,10 +42,11 @@ object DeduplicationExample extends Logging {
     val ds = lineRDD.map(_.split(","))
       .map(attributes => {
         try {
-          Person(attributes(0), attributes(1).trim.toInt, Timestamp.valueOf(attributes(3)))
+          Person(attributes(0), attributes(1).trim.toInt, Timestamp.valueOf(attributes(2)))
         }
         catch {
           case e1: Exception => {
+            logInfo("ex: " + attributes(0) + attributes(1) + attributes(2), e1)
             println(attributes)
             Person("Nil", 0, Timestamp.valueOf("1970-01-01 00:00:00"))
           }
@@ -55,10 +56,10 @@ object DeduplicationExample extends Logging {
     val rowdf = ds.toDF()
     rowdf.printSchema()
 
-    rowdf.withWatermark("time", "10 seconds")
+    val ret = rowdf.withWatermark("time", "10 seconds")
       .dropDuplicates("name")
     // Start running the query that prints the running counts to the console
-    val query = rowdf.writeStream
+    val query = ret.writeStream
       .outputMode("append")
       .format("console")
       .start()
