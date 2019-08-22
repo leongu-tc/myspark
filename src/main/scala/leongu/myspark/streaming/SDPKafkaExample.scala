@@ -8,17 +8,19 @@ object SDPKafkaExample extends Logging {
   case class Person(name: String, age: Long)
 
   def main(args: Array[String]) {
-
+    args.map(logInfo(_))
     val spark = SparkSession
       .builder()
       // IDE 内启动
 //      .master("spark://localhost:7077")
       //      .master("local")
       .appName("SDP Kafka example")
-      .config("spark.some.config.option", "some-value")
+      .config("hadoop_security_authentication_sdp_publickey", args(0))
+      .config("hadoop_security_authentication_sdp_privatekey", args(1))
+      .config("hadoop_security_authentication_sdp_username", args(2))
       .getOrCreate()
 
-    kafkatopic(spark, args(0), args(1));
+    kafkatopic(spark, args(3), args(4));
 
     println("done!")
   }
