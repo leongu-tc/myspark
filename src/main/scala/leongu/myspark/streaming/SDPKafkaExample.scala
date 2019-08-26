@@ -3,32 +3,37 @@ package leongu.myspark.streaming
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
-object KafkaExample extends Logging {
+object SDPKafkaExample extends Logging {
 
   case class Person(name: String, age: Long)
 
   def main(args: Array[String]) {
+    args.map(logInfo(_))
     val spark = SparkSession
       .builder()
       // IDE 内启动
 //      .master("spark://localhost:7077")
       //      .master("local")
-      .appName("Kafka example")
-      .config("spark.some.config.option", "some-value")
+      .appName("SDP Kafka example")
+      .config("hadoop_security_authentication_sdp_publickey", args(0))
+      .config("hadoop_security_authentication_sdp_privatekey", args(1))
+      .config("hadoop_security_authentication_sdp_username", args(2))
       .getOrCreate()
 
-    kafkatopic(spark);
+    kafkatopic(spark, args(3), args(4));
 
     println("done!")
   }
 
-  def kafkatopic(spark: SparkSession): Unit = {
+  def kafkatopic(spark: SparkSession, pubkey: String, prikey: String): Unit = {
     // Subscribe to 1 topic
     val df = spark
       .readStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "topic1")
+      .option("kafka.bootstrap.servers", "10.88.100.140:6667,10.88.100.141:6667,10.88.100.142:6667")
+      .option("subscribe", "person")
+      .option("kafka_security_authentication_sdp_publickey", pubkey)
+      .option("kafka_security_authentication_sdp_privatekey", prikey)
       .load()
 
     df.printSchema()
@@ -57,25 +62,6 @@ object KafkaExample extends Logging {
     val query = rowdf.writeStream
       .outputMode("append")
       .format("console")
-      .start()
-
-    query.awaitTermination()
-  }
-
-  def kafkatokafkatopic(spark: SparkSession): Unit = {
-    // Subscribe to 1 topic
-    val df = spark
-      .readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "topic1")
-      .load()
-
-    val query = df.writeStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("topic", "topic2")
-      .option("checkpointLocation", "checkpoints")
       .start()
 
     query.awaitTermination()
