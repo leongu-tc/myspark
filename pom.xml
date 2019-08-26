@@ -8,7 +8,7 @@
     <artifactId>myspark</artifactId>
     <version>1.0.0</version>
     <properties>
-        <scala.binary.version>2.11</scala.binary.version>
+        <scala.binary.version>2.12</scala.binary.version>
         <spark.version>2.4.1</spark.version>
     </properties>
 

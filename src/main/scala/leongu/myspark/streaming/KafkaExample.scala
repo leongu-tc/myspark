@@ -11,7 +11,7 @@ object KafkaExample extends Logging {
     val spark = SparkSession
       .builder()
       // IDE 内启动
-      .master("spark://localhost:7077")
+//      .master("spark://localhost:7077")
       //      .master("local")
       .appName("Kafka example")
       .config("spark.some.config.option", "some-value")
