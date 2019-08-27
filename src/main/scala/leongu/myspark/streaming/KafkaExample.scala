@@ -12,7 +12,7 @@ object KafkaExample extends Logging {
       .builder()
       // IDE 内启动
 //      .master("spark://localhost:7077")
-      //      .master("local")
+      .master("local")
       .appName("Kafka example")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
@@ -29,6 +29,8 @@ object KafkaExample extends Logging {
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
       .option("subscribe", "topic1")
+      .option("kafka.kafka.security.authentication.sdp.publickey", "aaaa")
+      .option("kafka.kafka.security.authentication.sdp.privatekey", "vvvvv")
       .load()
 
     df.printSchema()
