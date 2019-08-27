@@ -1,26 +1,26 @@
-package leongu.myspark.streaming
+package leongu.myspark.streaming.sdp
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Dataset, Row, SparkSession}
 
-object SDPKafkaExample extends Logging {
+object SDPKafka2Console extends Logging {
 
   case class Person(name: String, age: Long)
 
   def main(args: Array[String]) {
+    System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop-common-2.2.0-bin-master")
+
     args.map(logInfo(_))
     val spark = SparkSession
       .builder()
       // IDE 内启动
-//      .master("spark://localhost:7077")
+      //      .master("spark://localhost:7077")
       //      .master("local")
       .appName("SDP Kafka example")
-      .config("hadoop_security_authentication_sdp_publickey", args(0))
-      .config("hadoop_security_authentication_sdp_privatekey", args(1))
-      .config("hadoop_security_authentication_sdp_username", args(2))
       .getOrCreate()
 
-    kafkatopic(spark, args(3), args(4));
+    kafkatopic(spark, "M2D3lAtKDtCM63kD7i8xYbSieX5EZ73xIevO", "rZSDd3EiCyvGjEz6UUoFvafY8VyOYhMB");
+    //    kafkatokafkatopic(spark, "M2D3lAtKDtCM63kD7i8xYbSieX5EZ73xIevO", "rZSDd3EiCyvGjEz6UUoFvafY8VyOYhMB");
 
     println("done!")
   }
@@ -32,8 +32,10 @@ object SDPKafkaExample extends Logging {
       .format("kafka")
       .option("kafka.bootstrap.servers", "10.88.100.140:6667,10.88.100.141:6667,10.88.100.142:6667")
       .option("subscribe", "person")
-      .option("kafka_security_authentication_sdp_publickey", pubkey)
-      .option("kafka_security_authentication_sdp_privatekey", prikey)
+      .option("kafka.kafka.security.authentication.sdp.publickey", pubkey)
+      .option("kafka.kafka.security.authentication.sdp.privatekey", prikey)
+      .option("kafka.security.protocol", "SASL_SDP")
+      .option("kafka.sasl.mechanism", "SDP")
       .load()
 
     df.printSchema()
@@ -56,7 +58,6 @@ object SDPKafkaExample extends Logging {
       })
 
     val rowdf = ds.toDF()
-    rowdf.printSchema()
 
     // Start running the query that prints the running counts to the console
     val query = rowdf.writeStream
@@ -66,4 +67,5 @@ object SDPKafkaExample extends Logging {
 
     query.awaitTermination()
   }
+
 }
