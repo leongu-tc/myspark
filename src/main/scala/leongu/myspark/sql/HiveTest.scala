@@ -22,7 +22,7 @@ object HiveTest extends Logging {
     val spark = SparkSession
       .builder()
       // IDE 内启动
-      .master("spark://localhost:7077")
+//      .master("spark://localhost:7077")
       //      .master("local")
       .appName("Spark Hive Example")
       .config("spark.sql.warehouse.dir", warehouseLocation)
