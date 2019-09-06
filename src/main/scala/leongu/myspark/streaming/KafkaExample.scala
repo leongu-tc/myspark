@@ -80,4 +80,23 @@ object KafkaExample extends Logging {
 
     query.awaitTermination()
   }
+
+  def kafkatohbase(spark: SparkSession): Unit = {
+    // Subscribe to 1 topic
+    val df = spark
+      .readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "localhost:9092")
+      .option("subscribe", "topic1")
+      .load()
+
+    val query = df.writeStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "localhost:9092")
+      .option("topic", "topic2")
+      .option("checkpointLocation", "checkpoints")
+      .start()
+
+    query.awaitTermination()
+  }
 }

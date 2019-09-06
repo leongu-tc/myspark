@@ -10,6 +10,12 @@
     <properties>
         <scala.binary.version>2.12</scala.binary.version>
         <spark.version>2.4.1</spark.version>
+        <spark.version>2.4.1</spark.version>
+        <kafka.version>0.10.0.1-SDP</kafka.version>
+        <hadoop.version>2.7.2-SDP</hadoop.version>
+        <hbase.version>1.2.1-SDP</hbase.version>
+        <metrics-core.version>2.2.0</metrics-core.version>
+        <htrace.version>3.1.0-incubating</htrace.version>
     </properties>
 
     <dependencies>
@@ -73,11 +79,44 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- kafka -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>0.10.0.1-SDP</version>
+            <version>${kafka.version}</version>
         </dependency>
+        <!-- hbase -->
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-common</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-protocol</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.htrace</groupId>
+            <artifactId>htrace-core</artifactId>
+            <version>${htrace.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yammer.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>${metrics-core.version}</version>
+        </dependency>
+        <!-- other -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
