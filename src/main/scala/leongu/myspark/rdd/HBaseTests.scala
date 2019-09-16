@@ -1,7 +1,7 @@
 package leongu.myspark.rdd
 
-import org.apache.hadoop.hbase.HBaseConfiguration
-import org.apache.hadoop.hbase.client.{HTable, Put}
+import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
+import org.apache.hadoop.hbase.client.{ConnectionFactory, HTable, Put}
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.{SparkConf, SparkContext}
@@ -51,12 +51,15 @@ object HBaseTests {
       hbaseConf.set("hbase.zookeeper.quorum", "localhost")
       hbaseConf.set("hbase.zookeeper.property.clientPort", "2182")
       hbaseConf.set(TableInputFormat.INPUT_TABLE, tablename)
-      val htable = new HTable(hbaseConf, tablename)
+      val connection = ConnectionFactory.createConnection(hbaseConf)
+      val htable = connection.getTable(TableName.valueOf(tablename))
+      // old api
+      // val htable = new HTable(hbaseConf, tablename)
       x.foreach(y => {
         val arr = y.split(",")
         val rk = arr(0)
         val name = arr(1)
-        val age = arr(1)
+        val age = arr(2)
 
         val put = new Put(Bytes.toBytes(rk))
         put.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("name"), Bytes.toBytes(name))
