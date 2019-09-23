@@ -1,9 +1,9 @@
-package leongu.myspark.sql
+package leongu.myspark.session.sql
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}
-import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Row, SparkSession}
 
 object UntypedUDAFTest extends Logging {
 

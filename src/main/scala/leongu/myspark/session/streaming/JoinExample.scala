@@ -1,4 +1,4 @@
-package leongu.myspark.streaming
+package leongu.myspark.session.streaming
 
 import java.sql.Timestamp
 

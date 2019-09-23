@@ -1,4 +1,4 @@
-package leongu.myspark.sql.hbase
+package leongu.myspark.session.hbase
 
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hbase.client.{HTable, Table, _}

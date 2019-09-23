@@ -1,4 +1,4 @@
-package leongu.myspark.sql.hbase
+package leongu.myspark.session.hbase
 
 import java.text.DecimalFormat
 
