@@ -1,4 +1,4 @@
-package leongu.myspark.streaming.sdp
+package leongu.myspark.session.streaming.sdp
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Dataset, Row, SparkSession}

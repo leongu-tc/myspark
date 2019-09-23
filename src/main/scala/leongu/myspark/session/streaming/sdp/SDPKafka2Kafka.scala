@@ -1,4 +1,4 @@
-package leongu.myspark.streaming.sdp
+package leongu.myspark.session.streaming.sdp
 
 ;
 
