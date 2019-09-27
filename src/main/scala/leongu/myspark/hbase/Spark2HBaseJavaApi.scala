@@ -1,4 +1,4 @@
-package leongu.myspark.session.hbase
+package leongu.myspark.hbase
 
 import java.text.DecimalFormat
 import java.util.{ArrayList, List, Random}

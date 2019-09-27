@@ -4,15 +4,15 @@ import leongu.myspark.Constants
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{Row, SaveMode, SparkSession}
 
+/**
+  * 1 clean ./metastore_db
+  * 2 rm -r hdfs:///tmp/parquet_data  hdfs://localhost:9000/user/spark/spark-warehouse
+  */
 object HiveTest extends Logging {
 
   case class Record(key: Int, value: String)
 
   def main(args: Array[String]) {
-    /**
-      * 1 clean ./metastore_db
-      * 2 rm -r hdfs:///tmp/parquet_data  hdfs://localhost:9000/user/spark/spark-warehouse
-      */
     // warehouseLocation points to the default location for managed databases and tables
     //    val warehouseLocation = new File("spark-warehouse").getAbsolutePath
     val warehouseLocation = "/user/spark/spark-warehouse";
@@ -21,7 +21,7 @@ object HiveTest extends Logging {
 
     val spark = SparkSession
       .builder()
-      // IDE 内启动
+      // 指定spark集群
 //      .master("spark://localhost:7077")
       //      .master("local")
       .appName("Spark Hive Example")

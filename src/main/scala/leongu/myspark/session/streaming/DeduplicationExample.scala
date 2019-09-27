@@ -12,7 +12,7 @@ object DeduplicationExample extends Logging {
   def main(args: Array[String]) {
     val spark = SparkSession
       .builder()
-      // IDE 内启动
+      // 指定spark集群
       .master("spark://localhost:7077")
       //      .master("local")
       .appName("Deduplication example")
