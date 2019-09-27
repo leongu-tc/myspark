@@ -3,11 +3,12 @@ package leongu.myspark.session.api
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{SaveMode, SparkSession}
 
-object SDPHdfsTests extends Logging {
+object DataSetTests extends Logging {
 
   case class Person(name: String, age: Long)
 
   def main(args: Array[String]) {
+    args.map(logInfo(_)) // log all args
     val spark = SparkSession
       .builder()
       //      .master("local")

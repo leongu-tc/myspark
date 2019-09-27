@@ -1,4 +1,4 @@
-package leongu.myspark.session.hbase
+package leongu.myspark.hbase
 
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hbase.client.{HTable, Table, _}
@@ -9,23 +9,38 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, KeyValue, TableName}
 import org.apache.hadoop.mapreduce.Job
 import org.apache.spark.{SparkConf, SparkContext}
 
+/**
+  * 1、student.txt 上传到hdfs
+  * 2、hdfs://hdfsCluster/tmp/testbulkload 记得删除，否则报文件已存在的问题
+  * 3、SDP上操作的话，需要给keypair的用户上面的 stageDir 赋权hdfs访问权限；
+  *
+  */
 object Spark2HBaseBulkload {
 
   def main(args: Array[String]) = {
-    val sc = new SparkContext("local", "appName")
+    val sparkConf = new SparkConf().setAppName("Spark2HBaseBulkload")
+    //    .setMaster("local")
+    val sc = new SparkContext(sparkConf)
     val columnFamily1 = "cf"
     val conf = HBaseConfiguration.create()
     conf.set("hbase.zookeeper.property.clientPort", "2182")
     conf.set("hbase.zookeeper.quorum", "localhost")
+    // conf.set("hbase.zookeeper.property.clientPort", "2181")
+    // conf.set("hbase.zookeeper.quorum", "sdp-10-88-100-140,sdp-10-88-100-141,sdp-10-88-100-142")
+    // conf.set("zookeeper.znode.parent", "/hbase-unsecure")
+    // conf.set("hbase.security.authentication.sdp.publickey", "ItC2TbwGpXPHK9lCS5cGEWI7tzH8AoAnLKtJ")
+    // conf.set("hbase.security.authentication.sdp.privatekey", "pc0mO6NCjixoMZf9FSjJeVHADP6sng9T")
+    // conf.set("hbase.security.authentication.sdp.username", "hbase")
 
-    val source=sc.textFile("file:///E:/student.txt").map{
-      x=>{
-        val splited=x.split(",")
-        val rowkey=splited(0)
-        val cf=splited(1)
-        val clomn=splited(2)
-        val value=splited(3)
-        (rowkey,cf,clomn,value)
+    // rk001,cf,col1,value1
+    val source = sc.textFile("/data/gulele/spark/student.txt").map {
+      x => {
+        val splited = x.split(",")
+        val rowkey = splited(0)
+        val cf = splited(1)
+        val column = splited(2)
+        val value = splited(3)
+        (rowkey, cf, column, value)
       }
     }
     val rdd = source.map(x => {
@@ -38,8 +53,8 @@ object Spark2HBaseBulkload {
       val value = x._4
       (new ImmutableBytesWritable(Bytes.toBytes(rowKey)), new KeyValue(Bytes.toBytes(rowKey), Bytes.toBytes(family), Bytes.toBytes(colum), Bytes.toBytes(value)))
     })
-    //生成的HFile的临时保存路径
-    val stagingFolder = "hdfs://hadoop01:9000/data12"
+    //生成的HFile的临时保存路径。
+    val stagingFolder = "hdfs://hdfsCluster/tmp/testbulkload"
     //将日志保存到指定目录
     rdd.saveAsNewAPIHadoopFile(stagingFolder,
       classOf[ImmutableBytesWritable],
@@ -68,10 +83,10 @@ object Spark2HBaseBulkload {
       //配置HFileOutputFormat2的信息
       HFileOutputFormat2.configureIncrementalLoadMap(job, table)
       //开始导入
-      val start=System.currentTimeMillis()
+      val start = System.currentTimeMillis()
       load.doBulkLoad(new Path(stagingFolder), table.asInstanceOf[HTable])
-      val end=System.currentTimeMillis()
-      println("用时："+(end-start)+"毫秒！")
+      val end = System.currentTimeMillis()
+      println("用时：" + (end - start) + "毫秒！")
     } finally {
       table.close()
       conn.close()

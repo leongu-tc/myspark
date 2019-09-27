@@ -1,4 +1,4 @@
-package leongu.myspark.session.hbase
+package leongu.myspark.hbase
 
 import org.apache.hadoop.hbase.client.{ConnectionFactory, Put}
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
@@ -12,15 +12,14 @@ object HBaseTests {
   def main(args: Array[String]) {
     val spark = SparkSession
       .builder()
-      // IDE 内启动
-      .master("spark://localhost:7077")
+      //      .master("spark://localhost:7077")
       //      .master("local")
       .appName("Source example")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
     toHbase(spark.sparkContext)
-    //    hbasetoConsole(spark.sparkContext)
+    hbasetoConsole(spark.sparkContext)
 
     println("done!")
   }
@@ -31,6 +30,11 @@ object HBaseTests {
     val hbaseConf = HBaseConfiguration.create()
     hbaseConf.set("hbase.zookeeper.quorum", "localhost")
     hbaseConf.set("hbase.zookeeper.property.clientPort", "2182")
+    //      hbaseConf.set("hbase.zookeeper.quorum", "sdp-10-88-100-140,sdp-10-88-100-141,sdp-10-88-100-142")
+    //      hbaseConf.set("zookeeper.znode.parent", "/hbase-unsecure")
+    //      hbaseConf.set("hbase.security.authentication.sdp.publickey", "ItC2TbwGpXPHK9lCS5cGEWI7tzH8AoAnLKtJ")
+    //      hbaseConf.set("hbase.security.authentication.sdp.privatekey", "pc0mO6NCjixoMZf9FSjJeVHADP6sng9T")
+    //      hbaseConf.set("hbase.security.authentication.sdp.username", "hbase")
     hbaseConf.set(TableInputFormat.INPUT_TABLE, tablename)
 
     /** add row filter
@@ -75,6 +79,12 @@ object HBaseTests {
       val hbaseConf = HBaseConfiguration.create()
       hbaseConf.set("hbase.zookeeper.quorum", "localhost")
       hbaseConf.set("hbase.zookeeper.property.clientPort", "2182")
+      hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
+      //      hbaseConf.set("hbase.zookeeper.quorum", "sdp-10-88-100-140,sdp-10-88-100-141,sdp-10-88-100-142")
+      //      hbaseConf.set("zookeeper.znode.parent", "/hbase-unsecure")
+      //      hbaseConf.set("hbase.security.authentication.sdp.publickey", "ItC2TbwGpXPHK9lCS5cGEWI7tzH8AoAnLKtJ")
+      //      hbaseConf.set("hbase.security.authentication.sdp.privatekey", "pc0mO6NCjixoMZf9FSjJeVHADP6sng9T")
+      //      hbaseConf.set("hbase.security.authentication.sdp.username", "hbase")
       hbaseConf.set(TableInputFormat.INPUT_TABLE, tablename)
       val connection = ConnectionFactory.createConnection(hbaseConf)
       val htable = connection.getTable(TableName.valueOf(tablename))
