@@ -8,9 +8,9 @@
     <artifactId>myspark</artifactId>
     <version>1.0.0</version>
     <properties>
-        <scala.binary.version>2.12</scala.binary.version>
-        <spark.version>2.4.1</spark.version>
-        <spark.version>2.4.1</spark.version>
+        <scala.version>2.11.8</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <spark.version>2.4.4</spark.version>
         <kafka.version>0.10.0.1-SDP</kafka.version>
         <hadoop.version>2.7.2-SDP</hadoop.version>
         <hbase.version>1.2.1-SDP</hbase.version>
@@ -132,7 +132,7 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.12.8</version>
+            <version>${scala.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

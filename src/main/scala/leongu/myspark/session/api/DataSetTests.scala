@@ -18,6 +18,9 @@ object DataSetTests extends Logging {
       .appName("SDPHdfs2Console example")
       .getOrCreate()
 
+    // PRINT ALL config
+    spark.conf.getAll.map(println _)
+
     jsonSource(spark);
 
     println("done!")

@@ -14,6 +14,7 @@ buildNumber.properties
 # for spark
 metastore_db/
 derby.log
+checkpoints/
 
 # for idea
 .idea/
