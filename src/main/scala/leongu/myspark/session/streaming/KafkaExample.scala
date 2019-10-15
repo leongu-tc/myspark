@@ -1,5 +1,7 @@
 package leongu.myspark.session.streaming
 
+import java.sql.Timestamp
+
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.hbase.client.{Row => _, _}
 import org.apache.hadoop.hbase.util.Bytes
@@ -10,7 +12,7 @@ import org.apache.spark.sql._
 
 object KafkaExample extends Logging {
 
-  case class Person(name: String, age: Long)
+  case class Person(id: Long, name: String, age: Long, ts: Timestamp)
 
   val servers = "localhost:9092"
   val pub = "M2D3lAtKDtCM63kD7i8xYbSieX5EZ73xIevO"
@@ -47,9 +49,9 @@ object KafkaExample extends Logging {
     // For windows
     // System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop-common-2.2.0-bin-master")
 
-    Logger.getLogger("org").setLevel(Level.ERROR)
+    Logger.getLogger("org").setLevel(Level.WARN)
 
-    System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop-common-2.2.0-bin-master")
+    //    System.setProperty("hadoop.home.dir", "D:\\soft\\hadoop-common-2.2.0-bin-master")
 
 
     val spark = SparkSession
@@ -78,7 +80,9 @@ object KafkaExample extends Logging {
 
     //    kafkatopic(spark, df)
     //    kafkatokafkatopic(spark, df)
-    kafkatohbase(spark, df)
+    //    kafkatohbase(spark, df)
+    kafkatohbase2(spark, df)
+
 
     println("done!")
   }
@@ -91,12 +95,12 @@ object KafkaExample extends Logging {
     val ds = lineRDD.map(_.split(","))
       .map(attributes => {
         try {
-          Person(attributes(0), attributes(1).trim.toInt)
+          Person(attributes(0).trim.toLong, attributes(1), attributes(2).trim.toInt, new Timestamp(attributes(3).trim.toLong))
         }
         catch {
           case e1: Exception => {
             println(attributes)
-            Person("Nil", 0)
+            Person(0, "Nil", 0, new Timestamp(0l))
           }
         }
       })
@@ -137,12 +141,12 @@ object KafkaExample extends Logging {
     val ds = lineRDD.map(_.split(","))
       .map(attributes => {
         try {
-          Person(attributes(0), attributes(1).trim.toInt)
+          Person(attributes(0).trim.toLong, attributes(1), attributes(2).trim.toInt, new Timestamp(attributes(3).trim.toLong))
         }
         catch {
           case e1: Exception => {
             println(attributes)
-            Person("Nil", 0)
+            Person(0, "Nil", 0, new Timestamp(0L))
           }
         }
       })
@@ -171,7 +175,7 @@ object KafkaExample extends Logging {
 
             connection = ConnectionFactory.createConnection(hbaseConf)
             table = connection.getTable(TableName.valueOf(hbase_tbl))
-            println("create hbase client ------------------- start")
+//            println("create hbase client ------------------- start")
             true
           }
 
@@ -181,8 +185,10 @@ object KafkaExample extends Logging {
             println(record.get(1).toString)
             println("------------")
             val theput = new Put(Bytes.toBytes("rk_" + record.get(0).toString))
-            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("name"), Bytes.toBytes(record.get(0).toString))
-            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("age"), Bytes.toBytes(record.get(1).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("id"), Bytes.toBytes(record.get(0).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("name"), Bytes.toBytes(record.get(1).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("age"), Bytes.toBytes(record.get(2).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("ts"), Bytes.toBytes(record.get(3).toString))
             table.put(theput)
           }
 
@@ -192,6 +198,67 @@ object KafkaExample extends Logging {
           }
         }
       )
+      .option("checkpointLocation", "checkpoints")
+      .start()
+
+    query.awaitTermination()
+  }
+
+
+  def kafkatohbase2(spark: SparkSession, df: DataFrame): Unit = {
+    import spark.implicits._
+    val lineRDD: Dataset[String] = df.selectExpr("CAST(value AS STRING)").as[String]
+    implicit val matchError = org.apache.spark.sql.Encoders.kryo[Row]
+    //处理成Row
+    val ds = lineRDD.map(_.split(","))
+      .map(attributes => {
+        try {
+          Person(attributes(0).trim.toLong, attributes(1), attributes(2).trim.toInt, new Timestamp(attributes(3).trim.toLong))
+        }
+        catch {
+          case e1: Exception => {
+            println(attributes)
+            Person(0, "Nil", 0, new Timestamp(0L))
+          }
+        }
+      })
+
+    val rowdf = ds.toDF().withWatermark("ts", "10 seconds").dropDuplicates()
+    rowdf.printSchema()
+
+    val query = rowdf.writeStream
+      .queryName("toHbase")
+      .outputMode("append")
+      .foreachBatch { (df: DataFrame, bid: Long) =>
+        df.foreachPartition(records => {
+//          println(s"create hbase client ------------------- start, bid = $bid")
+          var hbaseConf = HBaseConfiguration.create()
+          hbaseConf.set("hbase.zookeeper.quorum", hbase_quorum)
+          hbaseConf.set("hbase.zookeeper.property.clientPort", hbase_zk_port)
+          //          hbaseConf.set("zookeeper.znode.parent", hbase_zk_parent)
+          //          hbaseConf.set("hbase.security.authentication.sdp.publickey", hbase_pub)
+          //          hbaseConf.set("hbase.security.authentication.sdp.privatekey", hbase_pri)
+          //          hbaseConf.set("hbase.security.authentication.sdp.username", hbase_user)
+
+          var connection = ConnectionFactory.createConnection(hbaseConf)
+          var table = connection.getTable(TableName.valueOf(hbase_tbl))
+//          println("create hbase client ------------------- start")
+          records.foreach(record => {
+            println(record.toString)
+//            println(record.get(0).toString)
+//            println(record.get(1).toString)
+//            println("------------")
+            val theput = new Put(Bytes.toBytes("rk_" + record.get(0).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("id"), Bytes.toBytes(record.get(0).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("name"), Bytes.toBytes(record.get(1).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("age"), Bytes.toBytes(record.get(2).toString))
+            theput.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("ts"), Bytes.toBytes(record.get(3).toString))
+            table.put(theput)
+          })
+//          println("close hbase connection -----------------")
+          connection.close()
+        })
+      }
       .option("checkpointLocation", "checkpoints")
       .start()
 
