@@ -1,0 +1,20 @@
+# kafka
+kafka_servers:  10.88.100.154:6667,10.88.100.155:6667,10.88.100.156:6667
+kafka_pub:  fZXIOmxIG6DHwsuIRNqKi5ScqK0MyV4CubIp
+kafka_pri:  QTOctvkKJt3GcN5vKZNRNzZcEM7tZ9xP
+kafka_topic:  topic_leongu1
+kafka_protocol: SASL_PLAINTEXT
+kafka_mechanism:  SDP
+
+# hbase
+hbase_quorum: sdp-10-88-100-155,sdp-10-88-100-156,sdp-10-88-100-154
+hbase_zk_port:  2181
+hbase_zk_parent:  /hbase-unsecure
+hbase_pub:  9hCrSMzAd7GmTcgqKIEOKMamcB6ONkvIHeLk
+hbase_pri:  d1P3VqyM9wRCYQ6oXey5eqty1WEcVIGG
+hbase_user: hbase
+hbase_result_tbl: leongutest
+
+# common
+adjusting_day: 20190902
+bulkload_dir: hdfs://hdfsCluster/tmp/rtasset_bulkload
