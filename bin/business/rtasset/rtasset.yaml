@@ -2,7 +2,8 @@
 kafka_servers:  10.88.100.154:6667,10.88.100.155:6667,10.88.100.156:6667
 kafka_pub:  fZXIOmxIG6DHwsuIRNqKi5ScqK0MyV4CubIp
 kafka_pri:  QTOctvkKJt3GcN5vKZNRNzZcEM7tZ9xP
-kafka_topic:  topic_leongu1
+kafka_topic_match:  topic_leongu1
+kafka_topic_log:  topic_leongu2
 kafka_protocol: SASL_PLAINTEXT
 kafka_mechanism:  SDP
 

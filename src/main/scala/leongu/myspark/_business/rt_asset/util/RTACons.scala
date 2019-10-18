@@ -6,11 +6,12 @@ import scala.collection.immutable.{ListMap, TreeMap}
 
 
 trait RTACons {
-  // config
+  /** config */
   val KAFKA_SERVERS = "kafka_servers"
   val KAFKA_PUBKEY = "kafka_pub"
   val KAFKA_PRIKEY = "kafka_pri"
-  val KAFKA_TOPIC = "kafka_topic"
+  val KAFKA_TOPIC_MATCH = "kafka_topic_match"
+  val KAFKA_TOPIC_LOG = "kafka_topic_log"
   val KAFKA_PROTOCOL = "kafka_protocol"
   val KAFKA_MECHANISM = "kafka_mechanism"
 
@@ -30,7 +31,7 @@ trait RTACons {
   val HBASE_CF = "cf"
   val HBASE_CF_BYTES = Bytes.toBytes(HBASE_CF)
 
-  // schema
+  /** schema */
   // 1 for long, 2 for string, 3 for bigdecimal
   val match_schema = ListMap(
     "serverid" -> 1, "matchsno" -> 1, "operdate" -> 1, "custid" -> 1, "fundid" -> 1,

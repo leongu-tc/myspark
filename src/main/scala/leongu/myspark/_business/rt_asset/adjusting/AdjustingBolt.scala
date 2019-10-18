@@ -4,7 +4,7 @@ import org.apache.spark.sql.SparkSession
 
 import scala.collection.mutable
 
-object AdjustingBolt extends Adjusting {
+object AdjustingBolt extends Adjusting with Serializable {
   def initialAdjust(spark: SparkSession, conf: mutable.Map[String, Object]): Unit = {
     logInfo("INITIAL Adjusting beginning ... ...")
     adjusting(spark, conf, conf.getOrElse(ADJUSTING_DAY, "20190902").toString)

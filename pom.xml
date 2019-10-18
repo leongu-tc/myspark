@@ -107,6 +107,11 @@
             <version>${hbase.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-hadoop-compat</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.htrace</groupId>
             <artifactId>htrace-core</artifactId>
             <version>${htrace.version}</version>
