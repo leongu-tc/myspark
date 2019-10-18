@@ -1,18 +1,19 @@
 package leongu.myspark._business.rt_asset.adjusting
 
-import leongu.myspark._business.rt_asset.util.RTACons
+import leongu.myspark._business.rt_asset.util.{ExternalTools, RTACons}
 import org.apache.hadoop.fs.Path
-import org.apache.hadoop.hbase.client.{ConnectionFactory, HTable, Table}
+import org.apache.hadoop.hbase.KeyValue
+import org.apache.hadoop.hbase.client.{HTable, Table}
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.mapreduce.{HFileOutputFormat2, LoadIncrementalHFiles}
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.hadoop.hbase.{HBaseConfiguration, KeyValue, TableName}
 import org.apache.hadoop.mapreduce.Job
 import org.apache.spark.internal.Logging
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
-import scala.collection.immutable.TreeMap
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 trait Adjusting extends Logging with RTACons {
   /**
@@ -25,31 +26,28 @@ trait Adjusting extends Logging with RTACons {
   }
 
   def cpFromHiveToHBase(spark: SparkSession, conf: mutable.Map[String, Object], day: String): Unit = {
-    var hbaseConf = HBaseConfiguration.create()
-    hbaseConf.set("hbase.zookeeper.quorum", conf.getOrElse("hbase_quorum", "localhost").toString)
-    hbaseConf.set("hbase.zookeeper.property.clientPort", conf.getOrElse("hbase_zk_port", "2182").toString)
-    hbaseConf.set("zookeeper.znode.parent", conf.getOrElse("hbase_zk_parent", "/hbase").toString)
-    hbaseConf.set("hbase.security.authentication.sdp.publickey", conf.getOrElse("hbase_pub", "").toString)
-    hbaseConf.set("hbase.security.authentication.sdp.privatekey", conf.getOrElse("hbase_pri", "").toString)
-    hbaseConf.set("hbase.security.authentication.sdp.username", conf.getOrElse("hbase_user", "hbase").toString)
+    var hbase = ExternalTools.getHBase(conf)
+    val hbaseConf = hbase._1
+    val conn = hbase._2
+    val table: Table = hbase._3
 
-    val conn = ConnectionFactory.createConnection(hbaseConf)
-    val table: Table = conn.getTable(TableName.valueOf(HBASE_RESULT_TBL))
-
-    import spark.implicits._
     import spark.sql
 
     val query = s"SELECT * FROM centrd.stkasset WHERE bizdate = $day"
     val stkasset: DataFrame = sql(query)
-
-    val rdd = stkasset.flatMap(row => transRow2Log(row).iterator).coalesce(1).rdd.sortByKey()
+    stkasset.show()
+    val row_rdd: RDD[(ImmutableBytesWritable, Seq[KeyValue])] =
+      stkasset.rdd.map(row => transRow2Log(row))
+    val hfile_rdd: RDD[(ImmutableBytesWritable, KeyValue)] = row_rdd.flatMapValues(_.iterator)
+    ExternalTools.deleteHdfsPath(BULKLOAD_DIR) // rm old bulkload_dir in case dirty data
+    hfile_rdd.sortBy(x => (x._1, x._2.getKeyString), true)
       .saveAsNewAPIHadoopFile(BULKLOAD_DIR,
         classOf[ImmutableBytesWritable],
         classOf[KeyValue],
         classOf[HFileOutputFormat2],
         hbaseConf)
 
-
+    // bulkload
     val load = new LoadIncrementalHFiles(hbaseConf)
     try {
       val job = Job.getInstance(hbaseConf)
@@ -73,22 +71,28 @@ trait Adjusting extends Logging with RTACons {
     * @param row
     * @return
     */
-  def transRow2Log(row: Row): TreeMap[ImmutableBytesWritable, KeyValue] = {
-    val rowKey = row.getAs[String]("fundid").concat("_").
+  def transRow2Log(row: Row): (ImmutableBytesWritable, Seq[KeyValue]) = {
+    var kvSeq: ListBuffer[KeyValue] = ListBuffer()
+    val rowKey = row.getAs[Long]("fundid").toString.concat("_").
       concat(row.getAs[String]("secuid")).concat("_").
       concat(row.getAs[String]("orgid")).concat("_").
       concat(row.getAs[String]("market")).concat("_").
       concat(row.getAs[String]("stkcode")).concat("_").
-      concat(row.getAs[String]("serverid"))
+      concat(row.getAs[Long]("serverid").toString)
     val wkey = new ImmutableBytesWritable(Bytes.toBytes(rowKey))
-    for ((fName, fTypeIdx) <- stk_asset_schema) yield (wkey, genKV(row, rowKey, fName, fTypeIdx))
+    for ((fName, fTypeIdx) <- stk_asset_schema) {
+      if (row.getAs(fName) != null) {
+        val kv = genKV(row, rowKey, fName, fTypeIdx)
+        kvSeq += kv
+      }
+    }
+    (wkey, kvSeq)
   }
 
   def genKV(row: Row, rowKey: String, name: String, typeIdx: Int): KeyValue = {
     typeIdx match {
       case 1 => new KeyValue(Bytes.toBytes(rowKey), HBASE_CF_BYTES,
         Bytes.toBytes(name), Bytes.toBytes(row.getAs[Long](name)))
-
       case 2 => new KeyValue(Bytes.toBytes(rowKey), HBASE_CF_BYTES,
         Bytes.toBytes(name), Bytes.toBytes(row.getAs[String](name)))
       case 3 => new KeyValue(Bytes.toBytes(rowKey), HBASE_CF_BYTES,
