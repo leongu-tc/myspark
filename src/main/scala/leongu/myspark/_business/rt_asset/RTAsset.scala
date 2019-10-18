@@ -5,6 +5,7 @@ import java.util.Date
 import leongu.myspark._business.rt_asset.adjusting.AdjustingBolt
 import leongu.myspark._business.rt_asset.rt.RTAProcessor
 import leongu.myspark._business.rt_asset.util.{ExternalTools, RTACons}
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.yaml.snakeyaml.Yaml
@@ -13,7 +14,7 @@ import scala.collection.{JavaConverters, mutable}
 import scala.io.Source
 
 object RTAsset extends Logging with RTACons {
-  //  Logger.getLogger("org").setLevel(Level.WARN)
+  Logger.getLogger("org").setLevel(Level.WARN)
   var conf: mutable.Map[String, Object] = mutable.Map()
 
   def readConf(file: String): Unit = {
@@ -52,11 +53,11 @@ object RTAsset extends Logging with RTACons {
 
     readConf(confFileName)
 
-    // 1 adjusting
-    AdjustingBolt.initialAdjust(spark, conf)
+        // 1 adjusting
+        AdjustingBolt.initialAdjust(spark, conf)
 
-    //    // 2 realtime computing
-    //    proc(spark)
+    // 2 realtime computing
+//    proc(spark)
 
 
     println("Over!")
@@ -68,8 +69,8 @@ object RTAsset extends Logging with RTACons {
     * @param spark
     */
   def proc(spark: SparkSession): Unit = {
-    val match_df = loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_MATCH, "match").toString)
-    val log_df = loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_LOG, "logasset").toString)
+    val match_df = loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_MATCH, "topic1").toString)
+    // TODO val log_df = loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_LOG, "logasset").toString)
     // 1 stk rt asset
     val stk_query = RTAProcessor.start_stk_proc(spark, RTAProcessor.df_match(spark, match_df))
     //   TODO val fund_query = RTAProcessor.df_match(spark, log)

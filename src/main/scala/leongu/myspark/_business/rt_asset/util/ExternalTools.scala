@@ -2,9 +2,9 @@ package leongu.myspark._business.rt_asset.util
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Get, Table}
+import org.apache.hadoop.hbase.client._
 import org.apache.hadoop.hbase.util.Bytes
-import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
+import org.apache.hadoop.hbase.{Cell, HBaseConfiguration, TableName}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.DataStreamReader
@@ -26,6 +26,8 @@ object ExternalTools extends RTACons with Logging {
       reader.option("kafka.security.protocol", conf.getOrElse(KAFKA_PROTOCOL, "").toString)
       reader.option("kafka.sasl.mechanism", conf.getOrElse(KAFKA_MECHANISM, "").toString)
     }
+    conf.map(a => println(a._2))
+    println(topic)
     reader
   }
 
@@ -42,9 +44,22 @@ object ExternalTools extends RTACons with Logging {
     (hbaseConf, connection, table)
   }
 
-  def getHBaseVal(t: Table, rk: String, cols: Seq[String]): Seq[Array[Byte]] = {
+  def getHBaseVal(t: Table, rk: String, cols: Seq[String]): Seq[Cell] = {
     val get = new Get(Bytes.toBytes(rk))
-    for (col <- cols) yield t.get(get).getColumnLatestCell(HBASE_CF_BYTES, Bytes.toBytes(col)).getValueArray
+    val ret = t.get(get)
+    for (col <- cols) yield ret.getColumnLatestCell(HBASE_CF_BYTES, Bytes.toBytes(col))
+  }
+
+  def getHBaseLongVal(c: Cell): Long = {
+    Bytes.toLong(c.getValueArray, c.getValueOffset, c.getValueLength)
+  }
+
+  def getHBaseStringVal(c: Cell): String = {
+    Bytes.toString(c.getValueArray, c.getValueOffset, c.getValueLength)
+  }
+
+  def getHBaseDecimalVal(c: Cell): BigDecimal = {
+    Bytes.toBigDecimal(c.getValueArray, c.getValueOffset, c.getValueLength)
   }
 
   def deleteHdfsPath(url: String) = {
@@ -54,5 +69,24 @@ object ExternalTools extends RTACons with Logging {
     if (hdfs.exists(path)) {
       hdfs.delete(path, true)
     }
+  }
+
+  def main(args: Array[String]) = {
+    var conf: mutable.Map[String, Object] = mutable.Map()
+    conf.put(HBASE_RESULT_TBL, "t3")
+    val hbase = getHBase(conf)
+    val theput = new Put(Bytes.toBytes("AA"))
+    theput.add(HBASE_CF_BYTES, Bytes.toBytes("A"), Bytes.toBytes(1L))
+    theput.add(HBASE_CF_BYTES, Bytes.toBytes("B"), Bytes.toBytes("ASDASDAS"))
+    hbase._3.put(theput)
+
+    val get = new Get(Bytes.toBytes("AA"))
+    val ret = hbase._3.get(get)
+    val aCell = ret.getColumnLatestCell(HBASE_CF_BYTES, Bytes.toBytes("A"))
+    var l = Bytes.toLong(aCell.getValueArray, aCell.getValueOffset, aCell.getValueLength)
+    println(l)
+    var bCell = ret.getColumnLatestCell(HBASE_CF_BYTES, Bytes.toBytes("B"))
+    var l2 = Bytes.toString(bCell.getValueArray, bCell.getValueOffset, bCell.getValueLength)
+    println(l2)
   }
 }
