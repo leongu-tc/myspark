@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# export hadoop_security_authentication_sdp_publickey=UnxolGQSCoxTtEn2LYlJCQzv5HLiHsCgmuyg;
+# export hadoop_security_authentication_sdp_privatekey=hqiPynFJckzhzbDEtLgbVekNzwr9lss0;
+# export hadoop_security_authentication_sdp_username=hdfs;
+
 # /usr/hdp/2.2.0.0-2041/spark24/bin/spark-submit \
 #  --class "leongu.myspark._business.rt_asset.RTAsset" \
 #  --master yarn \

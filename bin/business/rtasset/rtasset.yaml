@@ -14,8 +14,9 @@ hbase_zk_parent:  /hbase-unsecure
 hbase_pub:  9hCrSMzAd7GmTcgqKIEOKMamcB6ONkvIHeLk
 hbase_pri:  d1P3VqyM9wRCYQ6oXey5eqty1WEcVIGG
 hbase_user: hbase
-hbase_result_tbl: leongutest
-
+hbase_tbl_stk: rt_stkasset
+hbase_tbl_fund: rt_fundasset
+hbase_tbl_of: rt_ofasset
 # common
 adjusting_day: 20190902
 bulkload_dir: hdfs://hdfsCluster/tmp/rtasset_bulkload

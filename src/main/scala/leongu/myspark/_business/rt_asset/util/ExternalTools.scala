@@ -31,7 +31,7 @@ object ExternalTools extends RTACons with Logging {
     reader
   }
 
-  def getHBase(conf: mutable.Map[String, Object]): (Configuration, Connection, Table) = {
+  def getHBase(conf: mutable.Map[String, Object], tbl: String): (Configuration, Connection, Table) = {
     var hbaseConf = HBaseConfiguration.create()
     hbaseConf.set("hbase.zookeeper.quorum", conf.getOrElse(HBASE_QUORUM, "localhost").toString)
     hbaseConf.set("hbase.zookeeper.property.clientPort", conf.getOrElse(HBASE_ZK_PORT, "2182").toString)
@@ -40,7 +40,8 @@ object ExternalTools extends RTACons with Logging {
     hbaseConf.set("hbase.security.authentication.sdp.privatekey", conf.getOrElse(HBASE_PRIKEY, "").toString)
     hbaseConf.set("hbase.security.authentication.sdp.username", conf.getOrElse(HBASE_USER, "hbase").toString)
     var connection = ConnectionFactory.createConnection(hbaseConf)
-    var table = connection.getTable(TableName.valueOf(conf.getOrElse(HBASE_RESULT_TBL, "t1").toString))
+    var table = connection.getTable(TableName.valueOf(tbl))
+    // var table = connection.getTable(TableName.valueOf(conf.getOrElse(HBASE_TBL_STK, "t1").toString))
     (hbaseConf, connection, table)
   }
 
@@ -73,8 +74,8 @@ object ExternalTools extends RTACons with Logging {
 
   def main(args: Array[String]) = {
     var conf: mutable.Map[String, Object] = mutable.Map()
-    conf.put(HBASE_RESULT_TBL, "t3")
-    val hbase = getHBase(conf)
+    conf.put(HBASE_TBL_STK, "t3")
+    val hbase = getHBase(conf, "t3")
     val theput = new Put(Bytes.toBytes("AA"))
     theput.add(HBASE_CF_BYTES, Bytes.toBytes("A"), Bytes.toBytes(1L))
     theput.add(HBASE_CF_BYTES, Bytes.toBytes("B"), Bytes.toBytes("ASDASDAS"))

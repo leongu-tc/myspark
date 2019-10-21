@@ -18,6 +18,11 @@ object RTARules extends RTACons {
     ret
   }
 
+  def fund_compute(fundbal: BigDecimal, value: BigDecimal): BigDecimal= {
+    fundbal + value
+  }
+
+
   val BS_FLAG_STK = List("03", "04", "0B", "0S",
     "0a", "0b", "0c", "0d", "0e", "0f", "0g", "0h", "0i", "0j",
     "0q", "0r", "1j", "3m", "3n"
@@ -27,5 +32,6 @@ object RTARules extends RTACons {
     val a = Bytes.toBytes(9L);
     println(a.length)
     println(Bytes.toLong(a))
+    println(BigDecimal(1.1) + BigDecimal(2.2))
   }
 }

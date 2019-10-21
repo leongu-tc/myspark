@@ -53,11 +53,11 @@ object RTAsset extends Logging with RTACons {
 
     readConf(confFileName)
 
-        // 1 adjusting
-        AdjustingBolt.initialAdjust(spark, conf)
+    // 1 adjusting
+    AdjustingBolt.initialAdjust(spark, conf)
 
     // 2 realtime computing
-//    proc(spark)
+    proc(spark)
 
 
     println("Over!")
@@ -69,11 +69,12 @@ object RTAsset extends Logging with RTACons {
     * @param spark
     */
   def proc(spark: SparkSession): Unit = {
-    val match_df = loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_MATCH, "topic1").toString)
-    // TODO val log_df = loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_LOG, "logasset").toString)
+    logInfo("Starting processing streaming data ... ...")
+    val match_df = RTAProcessor.df_match(spark, loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_MATCH, "match").toString))
+    val logasset_df = RTAProcessor.df_match(spark, loadKafkaSource(spark, conf.getOrElse(KAFKA_TOPIC_LOG, "logasset").toString))
     // 1 stk rt asset
-    val stk_query = RTAProcessor.start_stk_proc(spark, RTAProcessor.df_match(spark, match_df))
-    //   TODO val fund_query = RTAProcessor.df_match(spark, log)
+    val stk_query = RTAProcessor.start_stk_proc(spark, match_df)
+    RTAProcessor.start_fund_proc(spark, match_df, logasset_df)
     stk_query.awaitTermination(HALF_DAY)
     logInfo("Spark Session close at " + new Date + " ... ...")
     spark.close();
