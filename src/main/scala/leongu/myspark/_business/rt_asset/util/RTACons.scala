@@ -21,7 +21,9 @@ trait RTACons {
   val HBASE_PUBKEY = "hbase_pub"
   val HBASE_PRIKEY = "hbase_pri"
   val HBASE_USER = "hbase_user"
-  val HBASE_RESULT_TBL = "hbase_result_tbl"
+  val HBASE_TBL_STK = "hbase_tbl_stk"
+  val HBASE_TBL_FUND = "hbase_tbl_fund"
+  val HBASE_TBL_OF = "hbase_tbl_of"
 
   val ADJUSTING_DAY = "adjusting_day"
   val BULKLOAD_DIR = "bulkload_dir"
@@ -33,6 +35,8 @@ trait RTACons {
 
   /** schema */
   // 1 for long, 2 for string, 3 for bigdecimal
+
+  // @Deprecated
   val match_schema = ListMap(
     "serverid" -> 1, "matchsno" -> 1, "operdate" -> 1, "custid" -> 1, "fundid" -> 1,
     "moneytype" -> 2, "fundkind" -> 2, "fundlevel" -> 2, "fundgroup" -> 2, "orgid" -> 2,
@@ -55,5 +59,15 @@ trait RTACons {
     "stkcorpremain" -> 1, "creditstkbal" -> 1, "creditstkbuysale" -> 1, "stkflag" -> 2, "lastbuycost" -> 3,
     "lastprofitcost" -> 3, "buycost" -> 3, "profitcost" -> 3, "mktval" -> 3, "stkavl_in" -> 1,
     "stkavl_out" -> 1, "stkbuysale2" -> 1, "stkdecimal" -> 3, "bizdate" -> 1)
+
+
+  val fund_asset_schema = TreeMap(
+    "serverid" -> 1, "orgid" -> 2, "fundseq" -> 1, "fundid" -> 1, "moneytype" -> 2,
+    "custid" -> 1, "fundlastbal" -> 3, "fundbal" -> 3, "fundavl" -> 3, "overdraw" -> 3,
+    "fundbuy" -> 3, "fundsale" -> 3, "funduncomebuy" -> 3, "funduncomesale" -> 3, "fundfrz" -> 3,
+    "fundunfrz" -> 3, "fundtrdfrz" -> 3, "fundtrdunfrz" -> 3, "fundnightfrz" -> 3, "fundloan" -> 3,
+    "creditbal" -> 3, "creditbuysale" -> 3, "creditavl" -> 3, "creditbuy" -> 3, "creditsale" -> 3,
+    "creditamtused" -> 3, "fundflag" -> 2, "otherasset" -> 3, "marketvalue" -> 3, "fundstandby" -> 3,
+    "fundbuysale" -> 3, "fundbalprefrz" -> 3, "busi_date" -> 2)
 
 }

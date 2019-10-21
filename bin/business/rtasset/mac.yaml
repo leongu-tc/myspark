@@ -7,7 +7,9 @@ kafka_topic_log:  topic_leongu2
 hbase_quorum: localhost
 hbase_zk_port:  2182
 hbase_zk_parent:  /hbase
-hbase_result_tbl: leongutest
+hbase_tbl_stk: rt_stkasset
+hbase_tbl_fund: rt_fundasset
+hbase_tbl_of: rt_ofasset
 
 # common
 adjusting_day: 20190902
