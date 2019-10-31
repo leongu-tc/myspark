@@ -45,7 +45,7 @@ object RTAsset extends Logging with RTACons {
       .master("local")
       .appName("realtime_asset")
       .config("hive.metastore.uris", "thrift://localhost:9083")
-      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") // 否则访问hbase失败因为对象不能序列化
       .enableHiveSupport()
       .getOrCreate()
 
