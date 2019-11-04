@@ -1,0 +1,10 @@
+# kafka
+kafka_servers:  localhost:9092
+kafka_topic_match:  topic_leongu1
+kafka_topic_log:  topic_leongu2
+
+# hbase
+hbase_quorum: localhost
+hbase_zk_port:  2182
+hbase_zk_parent:  /hbase
+hbase_tbl_point: point

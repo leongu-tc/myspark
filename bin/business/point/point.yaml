@@ -1,0 +1,16 @@
+# kafka
+kafka_servers:  10.88.100.55:6667,10.88.100.56:6667,10.88.100.57:6667
+kafka_pub:  U1cKdbyJh67tdKm2vOMBYsiVqZmn0fo1SUrp
+kafka_pri:  5EtuITepOB5YdS7rXLsZCOFEoKn2YmKk
+kafka_topic_point:  point
+kafka_protocol: SASL_PLAINTEXT
+kafka_mechanism:  SDP
+
+# hbase
+hbase_quorum: sdp-10-88-100-55,sdp-10-88-100-56,sdp-10-88-100-57
+hbase_zk_port:  2181
+hbase_zk_parent:  /hbase-unsecure
+hbase_pub: oaYg49YynS686ng1rtPUMfSncNoPWGWe9LO9
+hbase_pri: hOLJ5w9XSTLdMu7QjCJe91TWvlXxHvdx
+hbase_user: hbase
+hbase_tbl_point: point
