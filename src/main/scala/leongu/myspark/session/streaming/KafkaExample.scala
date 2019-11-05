@@ -229,7 +229,8 @@ object KafkaExample extends Logging {
     val query = rowdf.writeStream
       .queryName("toHbase")
       .outputMode("append")
-      .foreachBatch { (df: DataFrame, bid: Long) =>
+      .format("console")
+      /*.foreachBatch { (df: DataFrame, bid: Long) =>
         df.foreachPartition(records => {
 //          println(s"create hbase client ------------------- start, bid = $bid")
           var hbaseConf = HBaseConfiguration.create()
@@ -258,7 +259,7 @@ object KafkaExample extends Logging {
 //          println("close hbase connection -----------------")
           connection.close()
         })
-      }
+      }*/
       .option("checkpointLocation", "checkpoints")
       .start()
 
