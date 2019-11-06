@@ -38,10 +38,10 @@ trait PointCons {
 
   /** sql */
   lazy val logDate = conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
-  val individual_cust = "C" // cust_id,cust_telno
+  lazy val individual_cust = "C" // cust_id,cust_telno
   // individual custom
-  val CUSTBASEINFO_SQL = s"SELECT custid as cust_id,mobileno as cust_telno FROM centrd.custbaseinfo WHERE busi_date='$logDate' AND singleflag = 0"
-  val busi_sqls = List(
+  lazy val CUSTBASEINFO_SQL = s"SELECT custid as cust_id,mobileno as cust_telno FROM centrd.custbaseinfo WHERE busi_date='$logDate' AND singleflag = 0"
+  lazy val busi_sqls = List(
     s""" SELECT CU.cust_id, CU.cust_telno, '010109' as busi_no, '$logDate' as busi_date, C2.orgid
        | FROM (SELECT C.cust_id,C.cust_telno FROM C LEFT JOIN kbssacct.user_basic_info as U ON C.cust_id == U.user_code WHERE U.open_source = 1) as CU
        | LEFT JOIN centrd.customer as C2 ON CU.cust_id == C2.custid WHERE C2.busi_date='$logDate'
