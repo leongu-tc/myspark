@@ -16,4 +16,4 @@ hbase_user: hbase
 hbase_tbl_point: point
 
 # other config
-log_date: 20190922
+log_date: 20190628
