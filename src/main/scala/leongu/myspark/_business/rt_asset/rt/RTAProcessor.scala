@@ -104,7 +104,8 @@ object RTAProcessor extends Logging {
     stkDf.writeStream
       .queryName("rtstkasset_compute")
       .outputMode("append")
-      .foreachBatch { (df: DataFrame, bid: Long) =>
+      .format("console")
+      /*.foreachBatch { (df: DataFrame, bid: Long) =>
         df.foreachPartition(records => {
           //          println(s"create hbase client ------------------- start, bid = $bid")
           val hbase = ExternalTools.getHBase(conf, conf.getOrElse(HBASE_TBL_STK, "rt_stkasset").toString)
@@ -148,7 +149,7 @@ object RTAProcessor extends Logging {
           //          println("close hbase connection -----------------")
           connection.close()
         })
-      }
+      }*/
       .option("checkpointLocation", "/tmp/checkpoints/rtasset/stk")
       .start()
 
@@ -175,7 +176,8 @@ object RTAProcessor extends Logging {
     union.writeStream
       .queryName("fund_log_compute")
       .outputMode("append")
-      .foreachBatch { (df: DataFrame, bid: Long) =>
+      .format("console")
+      /*.foreachBatch { (df: DataFrame, bid: Long) =>
         df.foreachPartition(records => {
           //          println(s"create hbase client ------------------- start, bid = $bid")
           val hbase = ExternalTools.getHBase(conf, conf.getOrElse(HBASE_TBL_FUND, "rt_fundasset").toString)
@@ -217,7 +219,7 @@ object RTAProcessor extends Logging {
           //          println("close hbase connection -----------------")
           connection.close()
         })
-      }
+      }*/
       .option("checkpointLocation", "/tmp/checkpoints/rtasset/fund")
       .start()
   }

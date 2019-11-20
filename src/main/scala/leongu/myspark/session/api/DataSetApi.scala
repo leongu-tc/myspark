@@ -259,7 +259,7 @@ object DataSetApi extends Logging {
 
     var foreachFn = (r:Row) => println(r)
     df.foreach(foreachFn)
-    df.foreachPartition(iter => iter.foreach(foreachFn))
+//    df.foreachPartition(iter => iter.foreach(foreachFn))
     var foreachPartitionFn = (iter:Iterator[Row]) => iter.foreach(foreachFn)
     df.foreachPartition(foreachPartitionFn)
 

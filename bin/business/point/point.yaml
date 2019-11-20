@@ -14,3 +14,6 @@ hbase_pub: oaYg49YynS686ng1rtPUMfSncNoPWGWe9LO9
 hbase_pri: hOLJ5w9XSTLdMu7QjCJe91TWvlXxHvdx
 hbase_user: hbase
 hbase_tbl_point: point
+
+# other config
+log_date: 20190628

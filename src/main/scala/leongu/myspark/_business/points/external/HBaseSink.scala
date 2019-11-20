@@ -19,6 +19,8 @@ class HBaseSink[T](createTable: () => Table) extends Serializable {
 object HBaseSink {
   def apply[T](conf: mutable.Map[String, Object], tbl: String): HBaseSink[T] = {
     val createTable = () => {
+      println("------------ HBaseSink -----------")
+      conf.map(kv => println(kv.toString()))
       var hbaseConf = HBaseConfiguration.create()
       hbaseConf.set("hbase.zookeeper.quorum", conf.getOrElse(HBASE_QUORUM, "localhost").toString)
       hbaseConf.set("hbase.zookeeper.property.clientPort", conf.getOrElse(HBASE_ZK_PORT, "2182").toString)
@@ -31,6 +33,7 @@ object HBaseSink {
       sys.addShutdownHook {
         connection.close()
       }
+      println("------------ HBaseSink --------------")
       table
     }
 
