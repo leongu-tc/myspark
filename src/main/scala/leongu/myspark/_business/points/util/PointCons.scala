@@ -43,7 +43,7 @@ trait PointCons {
   lazy val CUSTBASEINFO_SQL = s"SELECT string(custid) as cust_id,mobileno as cust_telno FROM centrd.custbaseinfo WHERE singleflag = 0"
   lazy val busi_sqls = List(
     s""" SELECT CU.cust_id, CU.cust_telno, '010109' as busi_no, '$logDate' as busi_date, C2.orgid
-       | FROM (SELECT C.custid as cust_id,C.mobileno as cust_telno
+       | FROM (SELECT string(C.custid) as cust_id,C.mobileno as cust_telno
        |        FROM centrd.custbaseinfo C INNER JOIN kbssacct.user_basic_info as U
        |        ON C.custid == U.user_code
        |        WHERE U.open_source = 1 AND C.opendate = '$logDate' AND C.singleflag = 0) as CU
@@ -52,7 +52,7 @@ trait PointCons {
     s"""SELECT C.cust_id,C.cust_telno,'010201' as busi_no, '$logDate' as busi_date
        | FROM centrd.cgemsecuinfo U INNER JOIN C
        | ON C.cust_id = U.custid
-       | WHERE dealresult = '00' AND U.operdate='$logDate'
+       | WHERE dealresult = '00' AND U.signdate='$logDate'
      """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'010301' as busi_no, U.prof_sign_date as busi_date
        | FROM C INNER JOIN zh20.cust_invest_pro U
