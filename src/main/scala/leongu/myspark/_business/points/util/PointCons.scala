@@ -54,7 +54,7 @@ trait PointCons {
        | ON C.cust_id = U.custid
        | WHERE dealresult = '00' AND U.signdate='$logDate'
      """.stripMargin,
-    s"""SELECT C.cust_id,C.cust_telno,'010301' as busi_no, U.prof_sign_date as busi_date
+    s"""SELECT C.cust_id,C.cust_telno,'010301' as busi_no, '$logDate' as busi_date
        | FROM C INNER JOIN zh20.cust_invest_pro U
        | ON C.cust_id = U.cust_code
        | WHERE U.prof_investor_type='1' AND U.prof_sign_date='$logDate'
