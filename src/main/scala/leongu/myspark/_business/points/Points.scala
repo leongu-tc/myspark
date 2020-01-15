@@ -42,7 +42,7 @@ object Points extends Logging with PointCons {
       .builder()
       //.master("local")
       .appName("point")
-      //.config("hive.metastore.uris", "thrift://localhost:9083")
+      //.config("hive.metastore.uris", "thrift://localhost:9083") // for ide TEST
       //.config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") // 否则访问hbase失败因为对象不能序列化
       .enableHiveSupport()
       .getOrCreate()
