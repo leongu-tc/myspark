@@ -1,0 +1,12 @@
+# hbase
+hbase_quorum: sdp-10-88-100-155,sdp-10-88-100-156,sdp-10-88-100-154
+hbase_zk_port:  2181
+hbase_zk_parent:  /hbase-unsecure
+hbase_pub:  9hCrSMzAd7GmTcgqKIEOKMamcB6ONkvIHeLk
+hbase_pri:  d1P3VqyM9wRCYQ6oXey5eqty1WEcVIGG
+hbase_user: hbase
+
+# common
+asset_analysis_job: sync
+sync_day: -1
+bulkload_dir: hdfs://hdfsCluster/tmp/asset_analysis_bulkload
