@@ -42,6 +42,8 @@ object AssetAnalysis extends Logging with AACons {
       .appName(s"assset_analysis_$jobs")
 //      .config("hive.metastore.uris", "thrift://localhost:9083") // for ide TEST
       .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer") // 否则访问hbase失败因为对象不能序列化
+      .config("spark.hive.mapred.supports.subdirectories","true") // for HIVE CTAS UNION ALL table's subdirectories
+      .config("spark.hadoop.mapreduce.input.fileinputformat.input.dir.recursive","true")
       .enableHiveSupport()
       .getOrCreate()
 
@@ -52,11 +54,16 @@ object AssetAnalysis extends Logging with AACons {
       job => {
         job match {
           case "sync" => {
-            println(s"Job name: $job")
-            var dataTime = System.getenv("SDP_DATA_TIME")
-            if (dataTime == null) dataTime = conf.getOrElse(SYNC_DAY, "-1").toString
-            val dataTime2 = dataTime.substring(0,4).concat(dataTime.substring(4,6)).concat(dataTime.substring(6,8))
-            AASync.sync(spark, conf, dataTime2)
+            println(s"----- Task name: $job")
+            if (conf.contains(SYNC_DAY)) {
+              AASync.sync(spark, conf, conf.getOrElse(SYNC_DAY, "-1").toString)
+            } else {
+              // for azkaban env 20200114
+              var dataTime = System.getenv("SDP_DATA_TIME")
+              println(s"------ $dataTime")
+              val dataTime2 = dataTime.substring(0,4).concat(dataTime.substring(4,6)).concat(dataTime.substring(6,8))
+              AASync.sync(spark, conf, dataTime2)
+            }
           }
           case _ => println(s"Job name :$job unsupported!")
         }

@@ -1,12 +1,13 @@
 # hbase
-hbase_quorum: sdp-10-88-100-155,sdp-10-88-100-156,sdp-10-88-100-154
+hbase_quorum: sdp-10-88-0-13,sdp-10-88-0-14
 hbase_zk_port:  2181
 hbase_zk_parent:  /hbase-unsecure
-hbase_pub:  9hCrSMzAd7GmTcgqKIEOKMamcB6ONkvIHeLk
-hbase_pri:  d1P3VqyM9wRCYQ6oXey5eqty1WEcVIGG
-hbase_user: hbase
+hbase_pub: XXX
+hbase_pri: XXX
+hbase_user: gulele
 
 # common
 asset_analysis_job: sync
-sync_day: -1
-bulkload_dir: hdfs://hdfsCluster/tmp/asset_analysis_bulkload
+# sync_day: 20200203 use azkaban date time
+# need strategy for hadoop /tmp/hbase_write
+bulkload_dir: hdfs://hdfsCluster/tmp/hbase_write/asset_analysis_bulkload
