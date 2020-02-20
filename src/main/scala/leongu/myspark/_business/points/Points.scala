@@ -79,7 +79,8 @@ object Points extends Logging with PointCons {
 
     import spark.sql
     val topic = conf.getOrElse(KAFKA_TOPIC_POINT, "point").toString
-    val logDate = conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
+    val logDate = logDateFn()
+    // val logDate = conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
     // 1 cache cust base info for their phone
     sql(CUSTBASEINFO_SQL).createOrReplaceTempView(individual_cust)
 
@@ -87,6 +88,7 @@ object Points extends Logging with PointCons {
       logInfo(s"... business sql: $query")
       val res = sql(query)
 //      logInfo("count: "+res.count())
+      res.show
       logInfo(s"... business sql Over: $query")
 
         res.foreach(r => {
@@ -105,9 +107,10 @@ object Points extends Logging with PointCons {
             println(s"===3 row: $rowkey at $date aleady exist in hbase")
           } else {
             // 2 write kafka, in 0.11 use idempotent instead
-            kafkaProducer.value.send(topic, rowkey, ExTools.jsonValue(r.getValuesMap[String](r.schema.fieldNames)).toString())
+            kafkaProducer.value.send(topic, rowkey,
+              ExTools.jsonValue(r.getValuesMap[String](r.schema.fieldNames).filter(_._2 != null)).toString())
             // 3 write hbase
-            hbaseTable.value.put(ExTools.hbasePut(rowkey, r.getValuesMap[String](r.schema.fieldNames)))
+            hbaseTable.value.put(ExTools.hbasePut(rowkey, r.getValuesMap[String](r.schema.fieldNames).filter(_._2 != null)))
           }
         })
 

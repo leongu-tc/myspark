@@ -38,7 +38,8 @@ object ExTools extends PointCons {
   }
 
   def main(args: Array[String]): Unit = {
-    val map: Map[String, String] = Map("A" -> "B")
-    println(jsonValue(map))
+//    val map: Map[String, String] = Map("A" -> "B", "C" -> null)
+val map: Map[String, String] = Map("A" -> "B", "C" -> null)
+    println(jsonValue(map.filter(_._2 != null)))
   }
 }

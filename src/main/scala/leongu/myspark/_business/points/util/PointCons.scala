@@ -38,11 +38,22 @@ trait PointCons {
   }
 
   /** sql */
-  lazy val logDate = conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
+  lazy val logDate = logDateFn()
+  def logDateFn(): String ={
+    if (conf.contains(LOG_DATE)) {
+      conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
+    } else {
+      var dataTime = System.getenv("SDP_DATA_TIME")
+      println(s"------SDP_DATA_TIME $dataTime")
+      dataTime.substring(0,4).concat(dataTime.substring(4,6)).concat(dataTime.substring(6,8))
+    }
+  }
+
   lazy val commenders = conf.getOrElse(COMMENDER_NAMES,"").toString.split(",").map(e => "'"+e+"'").mkString(",")
   val individual_cust = "C" // cust_id,cust_telno
   // individual custom
   lazy val CUSTBASEINFO_SQL = s"SELECT string(custid) as cust_id,mobileno as cust_telno FROM centrd.custbaseinfo WHERE singleflag = 0"
+  // for 165 kbssacct.user_basic_info -> zh20.user_basic_info, kbssacct.cust_agreement -> zh20.cust_agreement
   lazy val busi_sqls = List(
     s""" SELECT CU.cust_id, CU.cust_telno, '010109' as busi_no, '$logDate' as busi_date, C2.orgid
        | FROM (SELECT string(C.custid) as cust_id,C.mobileno as cust_telno
@@ -55,12 +66,12 @@ trait PointCons {
        | SELECT CCU.cust_id, CCU.cust_telno, '010110' as busi_no, '$logDate' as busi_date, CCU.orgid, C3.commender_name
        | FROM (SELECT CU.cust_id, CU.cust_telno, C2.orgid
        |        FROM (SELECT string(C.custid) as cust_id,C.mobileno as cust_telno
-       |                FROM centrd.custbaseinfo C INNER JOIN zh20.user_basic_info as U
+       |                FROM centrd.custbaseinfo C INNER JOIN kbssacct.user_basic_info as U
        |                ON C.custid == U.user_code
        |                WHERE U.open_source = 1 AND C.opendate = '$logDate' AND C.singleflag = 0) as CU
        |        LEFT JOIN centrd.customer as C2 ON CU.cust_id == C2.custid) AS CCU
        | INNER JOIN cczq_dev.oa_s_cczq C3 ON CCU.cust_id = C3.cust_code
-       | WHERE C3.commender_name IN ($commenders)
+       | WHERE trim(C3.commender_name) IN ($commenders)
      """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'010201' as busi_no, '$logDate' as busi_date
        | FROM centrd.cgemsecuinfo U INNER JOIN C
