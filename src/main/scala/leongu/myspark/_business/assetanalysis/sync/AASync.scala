@@ -21,13 +21,13 @@ object AASync extends Logging with AACons {
   val sync_list = List(
     // for 55
 //    ("temp_ads.rt_cust_daily_return_rate", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_daily_return_rate"),
-//    ("temp_ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_daily_stkreturn"),
+//    ("temp_ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date", "stk_cd"),"assetanalysis:rt_cust_daily_stkreturn"),
 //    ("temp_ads.rt_cust_return_data", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_return_data"),
 //    ("temp_ads.rt_cust_month_stk_return", "", Seq("cptl_acc_id"),"assetanalysis:rt_cust_month_stk_return"),
 //    ("temp_ads.rt_cust_stk_rank", "", Seq("cptl_acc_id", "rank", "pl_flag"),"assetanalysis:rt_cust_stk_rank")
     // for xianwang
     ("ads.rt_cust_daily_return_rate", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_daily_return_rate"),
-    ("ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_daily_stkreturn"),
+    ("ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date", "stk_cd"),"assetanalysis:rt_cust_daily_stkreturn"),
     ("ads.rt_cust_return_data", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_return_data"),
     ("ads.rt_cust_month_stk_return", "", Seq("cptl_acc_id"),"assetanalysis:rt_cust_month_stk_return"),
     ("ads.rt_cust_stk_rank", "", Seq("cptl_acc_id", "rank", "pl_flag"),"assetanalysis:rt_cust_stk_rank")
@@ -183,11 +183,11 @@ object AASync extends Logging with AACons {
 
   def genQuerySQL(day: String, tbl: String, dateCol: String): String = {
 //    day match {
-//      case "-1" => s"SELECT * FROM $tbl WHERE cptl_acc_id IN ('10000000001', '60000000251')" // full history
+//      case "-1" => s"SELECT * FROM $tbl WHERE cptl_acc_id IN ('10000000001', '60000000251', '60080000251')" // full history
 //      case _ => {
 //        dateCol match {
 //          case "" => s"SELECT * FROM $tbl" // full history
-//          case _ => s"SELECT * FROM $tbl WHERE cptl_acc_id IN ('10000000001', '60000000251`') AND $dateCol = $day" // daily data
+//          case _ => s"SELECT * FROM $tbl WHERE cptl_acc_id IN ('10000000001', '60000000251', '60080000251') AND $dateCol = $day" // daily data
 //        }
 //      }
 //    }
