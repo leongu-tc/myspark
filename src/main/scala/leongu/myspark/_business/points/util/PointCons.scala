@@ -41,11 +41,16 @@ trait PointCons {
   lazy val logDate = logDateFn()
   def logDateFn(): String ={
     if (conf.contains(LOG_DATE)) {
-      conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
+      conf.getOrElse(LOG_DATE, "-1").toString
     } else {
+      var ret_date = conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
       var dataTime = System.getenv("SDP_DATA_TIME")
       println(s"------SDP_DATA_TIME $dataTime")
-      dataTime.substring(0,4).concat(dataTime.substring(4,6)).concat(dataTime.substring(6,8))
+      val sdp_date = dataTime.substring(0,4).concat(dataTime.substring(4,6)).concat(dataTime.substring(6,8))
+      if (sdp_date < ret_date) {
+        ret_date = sdp_date
+      }
+      ret_date
     }
   }
 
