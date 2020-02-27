@@ -30,7 +30,7 @@ object AASync extends Logging with AACons {
     ("ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date", "stk_cd"),"assetanalysis:rt_cust_daily_stkreturn"),
     ("ads.rt_cust_return_data", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_return_data"),
     ("ads.rt_cust_month_stk_return", "", Seq("cptl_acc_id"),"assetanalysis:rt_cust_month_stk_return"),
-    ("ads.rt_cust_stk_rank", "", Seq("cptl_acc_id", "rank", "pl_flag"),"assetanalysis:rt_cust_stk_rank")
+    ("ads.rt_cust_stk_rank", "", Seq("cptl_acc_id", "stk_cd"),"assetanalysis:rt_cust_stk_rank")
   )
 
   /**
