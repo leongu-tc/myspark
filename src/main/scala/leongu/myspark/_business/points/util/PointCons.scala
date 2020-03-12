@@ -168,7 +168,8 @@ trait PointCons {
        |			(SELECT * FROM centrd.eccodesign
        |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0' AND isnewsign='1')a
        |		LEFT JOIN
-       |			(SELECT * FROM centrd.eccodesign WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='3')b
+       |			(SELECT * FROM centrd.eccodesign
+       |        WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='3')b
        |		ON a.custid=b.custid
        |		WHERE b.custid is null
        |		) U
@@ -195,7 +196,11 @@ trait PointCons {
     """.stripMargin,
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011406' AS busi_no,'$logDate' AS busi_date
        |	FROM C INNER JOIN
-       |		(SELECT custid,busi_date FROM centrd.oforder WHERE busi_date=$logDate AND trdid='240029'
+       |		(SELECT custid,busi_date FROM centrd.oforder
+       |      WHERE busi_date=$logDate AND trdid='240029'
+       |    UNION
+       |    SELECT cust_code AS custid,busi_date FROM otc41.otc_trd_orders
+       |      WHERE busi_date=$logDate AND trd_id='129'
        |		) U
        |	ON C.cust_id = U.custid
     """.stripMargin,
