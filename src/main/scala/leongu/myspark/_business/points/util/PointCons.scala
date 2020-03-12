@@ -5,6 +5,7 @@ import java.util.Calendar
 
 import leongu.myspark._business.points.Points.conf
 import org.apache.hadoop.hbase.util.Bytes
+import org.apache.spark.sql.catalyst.util.StringUtils
 
 trait PointCons {
   /** config */
@@ -39,22 +40,25 @@ trait PointCons {
 
   /** sql */
   lazy val logDate = logDateFn()
-  def logDateFn(): String ={
+
+  def logDateFn(): String = {
     if (conf.contains(LOG_DATE)) {
       conf.getOrElse(LOG_DATE, "-1").toString
     } else {
       var ret_date = conf.getOrElse(LOG_DATE, new SimpleDateFormat("yyyyMMdd").format(yesterday.getTime)).toString
       var dataTime = System.getenv("SDP_DATA_TIME")
       println(s"------SDP_DATA_TIME $dataTime")
-      val sdp_date = dataTime.substring(0,4).concat(dataTime.substring(4,6)).concat(dataTime.substring(6,8))
-      if (sdp_date < ret_date) {
-        ret_date = sdp_date
+      if (dataTime != null && dataTime.length > 0) {
+        val sdp_date = dataTime.substring(0, 4).concat(dataTime.substring(4, 6)).concat(dataTime.substring(6, 8))
+        if (sdp_date < ret_date) {
+          ret_date = sdp_date
+        }
       }
       ret_date
     }
   }
 
-  lazy val commenders = conf.getOrElse(COMMENDER_NAMES,"").toString.split(",").map(e => "'"+e+"'").mkString(",")
+  lazy val commenders = conf.getOrElse(COMMENDER_NAMES, "").toString.split(",").map(e => "'" + e + "'").mkString(",")
   val individual_cust = "C" // cust_id,cust_telno
   // individual custom
   lazy val CUSTBASEINFO_SQL = s"SELECT string(custid) as cust_id,mobileno as cust_telno FROM centrd.custbaseinfo WHERE singleflag = 0"
@@ -120,11 +124,11 @@ trait PointCons {
        |  ON C.cust_id = U.cust_code
        |  WHERE U.cust_agmt_type = '26' AND U.eft_date='$logDate'
      """.stripMargin,
-//    s"""SELECT C.cust_id,C.cust_telno,'011001' as busi_no, '$logDate' as busi_date, U.market
-//       |  FROM centrd.secuid U INNER JOIN C
-//       |  ON C.cust_id = U.custid
-//       |  WHERE U.securight IN ('0s') AND U.status = 0 AND U.opendate='$logDate'
-//     """.stripMargin,
+    //    s"""SELECT C.cust_id,C.cust_telno,'011001' as busi_no, '$logDate' as busi_date, U.market
+    //       |  FROM centrd.secuid U INNER JOIN C
+    //       |  ON C.cust_id = U.custid
+    //       |  WHERE U.securight IN ('0s') AND U.status = 0 AND U.opendate='$logDate'
+    //     """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'011001' as busi_no, '$logDate' as busi_date,
        |  element_at(map('5', '沪港通', 'S', '深港通', '5,S', 'both', 'S,5', 'both'), U2.markets) as market
        |  FROM (SELECT U.custid, concat_ws(',' ,collect_set(U.market)) AS markets
@@ -133,7 +137,7 @@ trait PointCons {
        |  AS U2 INNER JOIN C
        |  ON C.cust_id = U2.custid
     """.stripMargin,
-  s"""SELECT C.cust_id,C.cust_telno,'011101' as busi_no, '$logDate' as busi_date
+    s"""SELECT C.cust_id,C.cust_telno,'011101' as busi_no, '$logDate' as busi_date
        |  FROM martrd.cdtapplication U INNER JOIN C
        |  ON C.cust_id = U.custid
        |  WHERE effectivedate='$logDate' AND U.status='5'
@@ -157,8 +161,59 @@ trait PointCons {
        |     ON V.inst_sno = W.inst_sno
        |     WHERE V.agr_stat='1' AND V.app_date='$logDate'
        |  ) U ON C.cust_id = U.cust_id
-     """.stripMargin
-
+     """.stripMargin,
+    s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011403' AS busi_no,'$logDate' AS busi_date
+       |	FROM C INNER JOIN
+       |		(SELECT DISTINCT a.custid FROM
+       |			(SELECT * FROM centrd.eccodesign
+       |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0' AND isnewsign='1')a
+       |		LEFT JOIN
+       |			(SELECT * FROM centrd.eccodesign WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='3')b
+       |		ON a.custid=b.custid
+       |		WHERE b.custid is null
+       |		) U
+       |	ON C.cust_id = U.custid
+    """.stripMargin,
+    s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011404' AS busi_no,'$logDate' AS busi_date
+       |	FROM C INNER JOIN
+       |		(SELECT DISTINCT a.custid FROM
+       |			(SELECT * FROM centrd.eccodesign
+       |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0')a
+       |		LEFT JOIN
+       |			(SELECT * FROM centrd.eccodesign
+       |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='3')b
+       |		ON a.custid=b.custid
+       |		WHERE b.custid is not null AND a.fundcode<>b.fundcode
+       |		) U
+       |	ON C.cust_id = U.custid
+    """.stripMargin,
+    s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011405' AS busi_no,'$logDate' AS busi_date
+       |	FROM C INNER JOIN
+       |		(SELECT custid,orderdate FROM centrd.eccustsign WHERE orderdate=$logDate
+       |		) U
+       |	ON C.cust_id = U.custid
+    """.stripMargin,
+    s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011406' AS busi_no,'$logDate' AS busi_date
+       |	FROM C INNER JOIN
+       |		(SELECT custid,busi_date FROM centrd.oforder WHERE busi_date=$logDate AND trdid='240029'
+       |		) U
+       |	ON C.cust_id = U.custid
+    """.stripMargin,
+    s"""SELECT CU.cust_id,CU.cust_telno,'011407' AS busi_no, '$logDate' AS busi_date
+       |	FROM
+       |	(SELECT DISTINCT C.cust_id,C.cust_telno, U.apply_date
+       |		FROM C INNER JOIN zh20.private_fund_invest U
+       |	ON C.cust_id = U.cust_code
+       |	WHERE U.fund_invest_type = '4'AND U.apply_date='$logDate') AS CU
+    """.stripMargin,
+    s"""SELECT DISTINCT C.cust_id,C.cust_telno, '012101' AS busi_no,'$logDate' AS busi_date
+       |	FROM C INNER JOIN
+       |		(SELECT custid,fundid,min(bizdate) AS bizdate FROM centrd.logasset WHERE digestid=160021 GROUP BY custid,fundid
+       |		union all
+       |		SELECT custid,fundid,min(bizdate) AS bizdate FROM martrd.logasset WHERE digestid=160021 GROUP BY custid,fundid) U
+       |	ON C.cust_id = U.custid
+       |	WHERE U.bizdate='$logDate'
+    """.stripMargin
   )
 
 }
