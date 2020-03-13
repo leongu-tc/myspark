@@ -6,23 +6,16 @@ import leongu.myspark._business.util.{Cons, Hive2HBase, Utils}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 
-import scala.collection.mutable
-
 object ClearedStock extends Logging with Cons {
   val CLEARED_STOCK_JOB = "cleared_stock_job"
+  // index -> (hive table name, hive filter, rowkey cols, hbase table name)
   val sync_list = List(
     // for 55
-    //    ("temp_ads.rt_cust_daily_return_rate", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_daily_return_rate"),
-    //    ("temp_ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date", "stk_cd"),"assetanalysis:rt_cust_daily_stkreturn"),
-    //    ("temp_ads.rt_cust_return_data", "busi_date", Seq("cptl_acc_id", "busi_date"),"assetanalysis:rt_cust_return_data"),
-    //    ("temp_ads.rt_cust_month_stk_return", "", Seq("cptl_acc_id"),"assetanalysis:rt_cust_month_stk_return"),
-    //    ("temp_ads.rt_cust_stk_rank", "", Seq("cptl_acc_id", "rank", "pl_flag"),"assetanalysis:rt_cust_stk_rank")
+    ("temp_ads.rt_cust_cleared_stock", "clear_date", Seq("fund_id","stk_cd","market","clear_date"), "clearedstock:rt_cust_cleared_stock"),
+    ("temp_ads.rt_cust_cleared_stock_detail", "clear_date", Seq("fund_id","stk_cd","market","clear_date","trd_date","trd_sno"), "clearedstock:rt_cust_cleared_stock_detail")
     // for xianwang
-    ("ads.rt_cust_daily_return_rate", "busi_date", Seq("cptl_acc_id", "busi_date"), "assetanalysis:rt_cust_daily_return_rate"),
-    ("ads.rt_cust_daily_stkreturn", "busi_date", Seq("cptl_acc_id", "busi_date", "stk_cd"), "assetanalysis:rt_cust_daily_stkreturn"),
-    ("ads.rt_cust_return_data", "busi_date", Seq("cptl_acc_id", "busi_date"), "assetanalysis:rt_cust_return_data"),
-    ("ads.rt_cust_month_stk_return", "", Seq("cptl_acc_id"), "assetanalysis:rt_cust_month_stk_return"),
-    ("ads.rt_cust_stk_rank", "", Seq("cptl_acc_id", "stk_cd"), "assetanalysis:rt_cust_stk_rank")
+//    ("ads.rt_cust_cleared_stock", "clear_date", Seq("fund_id","stk_cd","market","clear_date"), "clearedstock:rt_cust_cleared_stock"),
+//    ("ads.rt_cust_cleared_stock_detail", "clear_date", Seq("fund_id","stk_cd","market","clear_date","trd_date","trd_sno"), "clearedstock:rt_cust_cleared_stock_detail")
   )
 
   def main(args: Array[String]) {

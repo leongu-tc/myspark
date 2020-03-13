@@ -5,45 +5,27 @@
 因为建 namespace 只有admin才有权限，其他开发者只能在 portal 创建
 ```sql
 # 创建 namespace， 非管理员在portal操作
-create_namespace 'assetanalysis' // 生产 gulele 没有这个权限，在页面创建
+create_namespace 'clearedstock' // 生产 gulele 没有这个权限，在页面创建
 
 # 创建 table，建议在 portal 操作
-create 'assetanalysis:rt_cust_daily_return_rate','cf'
-create 'assetanalysis:rt_cust_daily_stkreturn','cf'
-create 'assetanalysis:rt_cust_return_data','cf'
-create 'assetanalysis:rt_cust_month_stk_return','cf'
-create 'assetanalysis:rt_cust_stk_rank','cf'
+create 'clearedstock:rt_cust_cleared_stock','cf'
+create 'clearedstock:rt_cust_cleared_stock_detail','cf'
 
 # 修改压缩策略为 snappy，无压缩的话空间大概需要 600G+， 压缩后为 110G+
 # 要求，hadoop checknative 必须支持 snappy，并且 spark conf 配置 spark.driver.extraLibraryPath 包含 native
-disable 'assetanalysis:rt_cust_daily_return_rate'
-alter 'assetanalysis:rt_cust_daily_return_rate', NAME => 'cf', COMPRESSION => 'snappy'
-enable 'assetanalysis:rt_cust_daily_return_rate'
+disable 'clearedstock:rt_cust_cleared_stock'
+alter 'clearedstock:rt_cust_cleared_stock', NAME => 'cf', COMPRESSION => 'snappy'
+enable 'clearedstock:rt_cust_cleared_stock'
 
-disable 'assetanalysis:rt_cust_daily_stkreturn'
-alter 'assetanalysis:rt_cust_daily_stkreturn', NAME => 'cf', COMPRESSION => 'snappy'
-enable 'assetanalysis:rt_cust_daily_stkreturn'
-
-disable 'assetanalysis:rt_cust_return_data'
-alter 'assetanalysis:rt_cust_return_data', NAME => 'cf', COMPRESSION => 'snappy'
-enable 'assetanalysis:rt_cust_return_data'
-
-disable 'assetanalysis:rt_cust_month_stk_return'
-alter 'assetanalysis:rt_cust_month_stk_return', NAME => 'cf', COMPRESSION => 'snappy'
-enable 'assetanalysis:rt_cust_month_stk_return'
-
-disable 'assetanalysis:rt_cust_stk_rank'
-alter 'assetanalysis:rt_cust_stk_rank', NAME => 'cf', COMPRESSION => 'snappy'
-enable 'assetanalysis:rt_cust_stk_rank'
+disable 'clearedstock:rt_cust_cleared_stock_detail'
+alter 'clearedstock:rt_cust_cleared_stock_detail', NAME => 'cf', COMPRESSION => 'snappy'
+enable 'clearedstock:rt_cust_cleared_stock_detail'
 
 # 如果之前有数据，手动压缩
-major_compact 'assetanalysis:rt_cust_daily_return_rate'
-major_compact 'assetanalysis:rt_cust_daily_stkreturn'
-major_compact 'assetanalysis:rt_cust_return_data'
-major_compact 'assetanalysis:rt_cust_month_stk_return'
-major_compact 'assetanalysis:rt_cust_stk_rank'
+major_compact 'clearedstock:rt_cust_cleared_stock'
+major_compact 'clearedstock:rt_cust_cleared_stock_detail'
 
-hadoop fs -du -h /apps/hbase/data/data/assetanalysis
+hadoop fs -du -h /apps/hbase/data/data/clearedstock
 ```
 ##### 2 创建hadoop权限策略
 添加新的hadoop策略（修改之前的策略未生效，待分析）
@@ -66,6 +48,3 @@ cd sub_dir_name
 ```
 
 ##### 5 指标情况
-- 一次完整的历史数据执行（80核 3G）一共需要 3小时13分钟的时间；
-- 一次单日任务数据执行（30核 1G）一共需要 4 分钟时间；
-- 压缩前总消耗存储空间：600G，压缩后为 110G左右；
