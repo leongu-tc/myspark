@@ -35,6 +35,15 @@ enable 'assetanalysis:rt_cust_month_stk_return'
 disable 'assetanalysis:rt_cust_stk_rank'
 alter 'assetanalysis:rt_cust_stk_rank', NAME => 'cf', COMPRESSION => 'snappy'
 enable 'assetanalysis:rt_cust_stk_rank'
+
+# 如果之前有数据，手动压缩
+major_compact 'assetanalysis:rt_cust_daily_return_rate'
+major_compact 'assetanalysis:rt_cust_daily_stkreturn'
+major_compact 'assetanalysis:rt_cust_return_data'
+major_compact 'assetanalysis:rt_cust_month_stk_return'
+major_compact 'assetanalysis:rt_cust_stk_rank'
+
+hadoop fs -du -h /apps/hbase/data/data/assetanalysis
 ```
 ##### 2 创建hadoop权限策略
 添加新的hadoop策略（修改之前的策略未生效，待分析）
