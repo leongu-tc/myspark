@@ -2,7 +2,7 @@ package leongu.myspark._business.clearedstock
 
 import java.util.Date
 
-import leongu.myspark._business.util.{Cons, Hive2HBase, Utils}
+import leongu.myspark._business.util.{Cons, FeedInTime, Hive2HBase, Utils}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 
@@ -47,6 +47,10 @@ object ClearedStock extends Logging with Cons {
         job match {
           case "sync" => {
             Hive2HBase.sync(spark, conf, sync_list, jobdate)
+          }
+          case "feed_in" => {
+            // 将表更新情况记录到 hbase 的 sdp:feed_in_time, 日期必须是 yyyyMMdd 格式
+            FeedInTime.feedIn(spark, conf, sync_list, Utils.jobDateFn(conf, SYNC_DAY, DF1))
           }
           case _ => println(s"Job name :$job unsupported!")
         }

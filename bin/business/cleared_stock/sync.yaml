@@ -7,7 +7,7 @@ hbase_pri: XXX
 hbase_user: gulele
 
 # common
-cleared_stock_job: sync
+cleared_stock_job: sync,feed_in
 # sync_day: 20200203 use azkaban date time
 # need strategy for hadoop /tmp/hbase_write
 bulkload_dir: hdfs://hdfsCluster/tmp/hbase_write/cleared_stock_bulkload

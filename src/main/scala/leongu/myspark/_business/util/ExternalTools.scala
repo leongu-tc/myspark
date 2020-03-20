@@ -10,6 +10,7 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.DataStreamReader
 
 import scala.collection.mutable
+import scala.util.parsing.json.JSONObject
 
 object ExternalTools extends Cons with Logging {
   def getkafkaStreamReader(conf: mutable.Map[String, Object], spark: SparkSession, topic: String): DataStreamReader = {
@@ -61,6 +62,17 @@ object ExternalTools extends Cons with Logging {
 
   def getHBaseDecimalVal(c: Cell): BigDecimal = {
     Bytes.toBigDecimal(c.getValueArray, c.getValueOffset, c.getValueLength)
+  }
+
+
+  def jsonValue(map: Map[String, String]): JSONObject = {
+    JSONObject.apply(map)
+  }
+
+  def hbasePut(rowkey: String, map: Map[String, String]): Put = {
+    val theput = new Put(Bytes.toBytes(rowkey))
+    map.map(e => theput.addColumn(HBASE_CF_BYTES, Bytes.toBytes(e._1), Bytes.toBytes(e._2)))
+    theput
   }
 
   def deleteHdfsPath(url: String) = {
