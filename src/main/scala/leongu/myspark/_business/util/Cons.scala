@@ -34,4 +34,5 @@ trait Cons {
   // date format
   val DF1 = new SimpleDateFormat("yyyyMMdd")
   val DF2 = new SimpleDateFormat("yyyy-MM-dd")
+  val DF3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 }

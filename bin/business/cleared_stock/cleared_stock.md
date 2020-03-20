@@ -1,6 +1,19 @@
 [TOC]
 
 ### 一、 sync from hive to hbase
+
+##### 0 hbase表更新时间表
+sdp:feed_in_time
+rowkey:name_type
+
+|字段名|类型|描述|
+|:--|:--|:-----|
+|name |String|库名加表名，e.g. hive 的为 db1.name1, hbase 为 ns1:tbl1|
+|type |String| 表类型：hbase hive mysql ...|
+|feed_in_time |String|本次数据更新的自然时间，格式为 yyyy-MM-dd HH:mm:ss|
+|last_data_time| String |azkaban 的 sdp data time 格式为 yyyyMMdd|
+|latest_data_time| String | 最大的  last_data_time 格式为 yyyyMMdd|
+
 ##### 1 建 hbase 表
 因为建 namespace 只有admin才有权限，其他开发者只能在 portal 创建
 ```sql
