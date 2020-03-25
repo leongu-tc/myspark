@@ -200,7 +200,7 @@ trait PointCons {
        |      WHERE busi_date=$logDate AND trdid='240029'
        |    UNION
        |    SELECT cust_code AS custid,busi_date FROM otc41.otc_trd_orders
-       |      WHERE busi_date=$logDate AND trd_id='129'
+       |      WHERE app_date=$logDate AND trd_id='129'
        |		) U
        |	ON C.cust_id = U.custid
     """.stripMargin,
