@@ -197,7 +197,7 @@ trait PointCons {
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011406' AS busi_no,'$logDate' AS busi_date
        |	FROM C INNER JOIN
        |		(SELECT custid,busi_date FROM centrd.oforder
-       |      WHERE busi_date=$logDate AND trdid='240029'
+       |      WHERE operdate=$logDate AND trdid='240029'
        |    UNION
        |    SELECT cust_code AS custid,busi_date FROM otc41.otc_trd_orders
        |      WHERE app_date=$logDate AND trd_id='129'
