@@ -169,7 +169,7 @@ trait PointCons {
        |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0' AND isnewsign='1')a
        |		LEFT JOIN
        |			(SELECT * FROM centrd.eccodesign
-       |        WHERE updatedate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus=<>'0')b
+       |        WHERE updatedate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus<>'0')b
        |		ON a.custid=b.custid
        |		WHERE b.custid is null
        |		) U
