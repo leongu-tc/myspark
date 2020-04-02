@@ -75,7 +75,7 @@ object Hive2HBase extends Logging with Cons {
     val hfile_rdd: RDD[(ImmutableBytesWritable, KeyValue)] = row_rdd.flatMapValues(_.iterator)
     ExternalTools.deleteHdfsPath(bulkload_dir) // rm old bulkload_dir in case dirty data
     hfile_rdd.sortBy(x => (x._1, x._2.getKeyString), true)
-      .coalesce(32)
+      //.coalesce(32)
       .saveAsNewAPIHadoopFile(bulkload_dir,
         classOf[ImmutableBytesWritable],
         classOf[KeyValue],

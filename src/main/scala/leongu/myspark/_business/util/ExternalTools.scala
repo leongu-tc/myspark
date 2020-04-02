@@ -40,6 +40,8 @@ object ExternalTools extends Cons with Logging {
     hbaseConf.set("hbase.security.authentication.sdp.publickey", conf.getOrElse(HBASE_PUBKEY, "").toString)
     hbaseConf.set("hbase.security.authentication.sdp.privatekey", conf.getOrElse(HBASE_PRIKEY, "").toString)
     hbaseConf.set("hbase.security.authentication.sdp.username", conf.getOrElse(HBASE_USER, "hbase").toString)
+    // for bulkload, bigdata, hfile might > 32, failed
+    hbaseConf.setInt("hbase.mapreduce.bulkload.max.hfiles.perRegion.perFamily",1024)
     var connection = ConnectionFactory.createConnection(hbaseConf)
     var table = connection.getTable(TableName.valueOf(tbl))
     // var table = connection.getTable(TableName.valueOf(conf.getOrElse(HBASE_TBL_STK, "t1").toString))
