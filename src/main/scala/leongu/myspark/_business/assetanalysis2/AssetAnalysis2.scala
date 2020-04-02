@@ -11,17 +11,17 @@ object AssetAnalysis2 extends Logging with Cons {
   // index -> (hive table name, hive filter, rowkey cols, hbase table name)
   val sync_list = List(
     // for 55
-    ("temp_ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
-    ("temp_ads.rt_cust_pl_payf_rate_trnd", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_rate_trnd"),
-    ("temp_ads.rt_cust_pl_payf_stat", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_stat"),
-    ("temp_ads.rt_cust_pl_mkt_indx_info", "busi_date", Seq("busi_date"), "assetanalysis:rt_cust_pl_mkt_indx_info"),
-    ("temp_ads.rt_cust_pl_payf_rate_stat", "", Seq("cptl_id", "stat_way"), "assetanalysis:rt_cust_pl_payf_rate_stat")
-    // for xianwang
-//      ("temp_ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
+//    ("temp_ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
 //    ("temp_ads.rt_cust_pl_payf_rate_trnd", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_rate_trnd"),
 //    ("temp_ads.rt_cust_pl_payf_stat", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_stat"),
 //    ("temp_ads.rt_cust_pl_mkt_indx_info", "busi_date", Seq("busi_date"), "assetanalysis:rt_cust_pl_mkt_indx_info"),
 //    ("temp_ads.rt_cust_pl_payf_rate_stat", "", Seq("cptl_id", "stat_way"), "assetanalysis:rt_cust_pl_payf_rate_stat")
+    // for xianwang
+    ("ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
+    ("ads.rt_cust_pl_payf_rate_trnd", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_rate_trnd"),
+    ("ads.rt_cust_pl_payf_stat", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_stat"),
+    ("ads.rt_cust_pl_mkt_indx_info", "busi_date", Seq("busi_date"), "assetanalysis:rt_cust_pl_mkt_indx_info"),
+    ("ads.rt_cust_pl_payf_rate_stat", "", Seq("cptl_id", "stat_way"), "assetanalysis:rt_cust_pl_payf_rate_stat")
   )
 
   def main(args: Array[String]) {
