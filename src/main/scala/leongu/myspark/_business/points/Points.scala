@@ -95,7 +95,7 @@ object Points extends Logging with PointCons {
           // 1 read hbase, if cusid, point_no, date are exit then skip
           val cust_id = r.getAs[String]("cust_id")
           val busi_no = r.getAs[String]("busi_no")
-          val rowkey = cust_id + "_" + busi_no
+          val rowkey = cust_id + "_" + logDate + "_" + busi_no
 
           println(s"=== $rowkey $r  ")
           val vals = ExternalTools.getHBaseVal(hbaseTable.value.table, rowkey, Seq("busi_date"))
