@@ -35,7 +35,8 @@ trait Adjusting extends Logging with RTACons {
 
   def cpFromHiveToHBase(spark: SparkSession, conf: mutable.Map[String, Object], day: String,
                         idx: Int, tbl: String, dateCol: String): Unit = {
-    val bulkload_dir = conf.getOrElse(BULKLOAD_DIR, "hdfs://localhost:9000/tmp/rtasset_bulkload").toString
+    var bulkload_dir = conf.getOrElse(BULKLOAD_DIR, "hdfs://localhost:9000/tmp/rtasset_bulkload").toString
+    bulkload_dir = bulkload_dir + "/" + tbl
     var hbase = ExternalTools.getHBase(conf, conf.getOrElse(HBASE_TBL_STK, "rt_stkasset").toString)
     val hbaseConf = hbase._1
     val conn = hbase._2
