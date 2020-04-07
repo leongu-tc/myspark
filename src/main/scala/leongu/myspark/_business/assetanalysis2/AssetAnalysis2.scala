@@ -2,7 +2,7 @@ package leongu.myspark._business.assetanalysis2
 
 import java.util.Date
 
-import leongu.myspark._business.util.{Cons, Hive2HBase, Utils}
+import leongu.myspark._business.util.{Cons, FeedInTime, Hive2HBase, Utils}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 
@@ -11,17 +11,17 @@ object AssetAnalysis2 extends Logging with Cons {
   // index -> (hive table name, hive filter, rowkey cols, hbase table name)
   val sync_list = List(
     // for 55
-    ("temp_ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
-    ("temp_ads.rt_cust_pl_payf_rate_trnd", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_rate_trnd"),
-    ("temp_ads.rt_cust_pl_payf_stat", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_stat"),
-    ("temp_ads.rt_cust_pl_mkt_indx_info", "busi_date", Seq("busi_date"), "assetanalysis:rt_cust_pl_mkt_indx_info"),
-    ("temp_ads.rt_cust_pl_payf_rate_stat", "", Seq("cptl_id", "stat_way"), "assetanalysis:rt_cust_pl_payf_rate_stat")
-    // for xianwang
-//      ("temp_ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
+//    ("temp_ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
 //    ("temp_ads.rt_cust_pl_payf_rate_trnd", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_rate_trnd"),
 //    ("temp_ads.rt_cust_pl_payf_stat", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_stat"),
 //    ("temp_ads.rt_cust_pl_mkt_indx_info", "busi_date", Seq("busi_date"), "assetanalysis:rt_cust_pl_mkt_indx_info"),
 //    ("temp_ads.rt_cust_pl_payf_rate_stat", "", Seq("cptl_id", "stat_way"), "assetanalysis:rt_cust_pl_payf_rate_stat")
+    // for xianwang
+    ("ads.rt_cust_pl_trdy", "", Seq("trd_date"), "assetanalysis:rt_cust_pl_trdy"),
+    ("ads.rt_cust_pl_payf_rate_trnd", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_rate_trnd"),
+    ("ads.rt_cust_pl_payf_stat", "busi_date", Seq("cptl_id", "busi_date"), "assetanalysis:rt_cust_pl_payf_stat"),
+    ("ads.rt_cust_pl_mkt_indx_info", "busi_date", Seq("busi_date"), "assetanalysis:rt_cust_pl_mkt_indx_info"),
+    ("ads.rt_cust_pl_payf_rate_stat", "", Seq("cptl_id", "stat_way"), "assetanalysis:rt_cust_pl_payf_rate_stat")
   )
 
   def main(args: Array[String]) {
@@ -53,6 +53,10 @@ object AssetAnalysis2 extends Logging with Cons {
         job match {
           case "sync" => {
             Hive2HBase.sync(spark, conf, sync_list, jobdate)
+          }
+          case "feed_in" => {
+            // 将表更新情况记录到 hbase 的 sdp:feed_in_time, 日期必须是 yyyyMMdd 格式
+            FeedInTime.feedIn(spark, conf, sync_list, Utils.jobDateFn(conf, SYNC_DAY, DF1))
           }
           case _ => println(s"Job name :$job unsupported!")
         }

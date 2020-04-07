@@ -58,7 +58,8 @@ object Hive2HBase extends Logging with Cons {
   def cpFromHiveToHBase(spark: SparkSession, conf: mutable.Map[String, Object], day: String,
                         tbl: String, dateCol: String, rowkeyCols: Seq[String], hbaseTbl: String,
                         columnMap: mutable.HashMap[String, String]): Unit = {
-    val bulkload_dir = conf.getOrElse(BULKLOAD_DIR, "hdfs://localhost:9000/tmp/tmp_bulkload").toString
+    var bulkload_dir = conf.getOrElse(BULKLOAD_DIR, "hdfs://localhost:9000/tmp/tmp_bulkload").toString
+    bulkload_dir = bulkload_dir + "/" + tbl
     val hbase = ExternalTools.getHBase(conf, hbaseTbl)
     val hbaseConf = hbase._1
     val conn = hbase._2
@@ -75,7 +76,7 @@ object Hive2HBase extends Logging with Cons {
     val hfile_rdd: RDD[(ImmutableBytesWritable, KeyValue)] = row_rdd.flatMapValues(_.iterator)
     ExternalTools.deleteHdfsPath(bulkload_dir) // rm old bulkload_dir in case dirty data
     hfile_rdd.sortBy(x => (x._1, x._2.getKeyString), true)
-      .coalesce(32)
+      //.coalesce(32)
       .saveAsNewAPIHadoopFile(bulkload_dir,
         classOf[ImmutableBytesWritable],
         classOf[KeyValue],
