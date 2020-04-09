@@ -1,7 +1,7 @@
 package leongu.myspark._business.util
 
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.util.{Calendar, Objects}
 
 import org.apache.spark.internal.Logging
 import org.yaml.snakeyaml.Yaml
@@ -26,6 +26,23 @@ object Utils extends Logging with Cons {
     conf
   }
 
+
+  def readConfFromResources(file: String): mutable.Map[String, Object] = {
+    var conf: mutable.Map[String, Object] = mutable.Map()
+    if (file != null) {
+      val stream = Source.fromURL(getClass.getResource(file)).bufferedReader()
+      if (Objects.isNull(stream)) {
+        throw new Exception("can not read " + file)
+      }
+      val yaml = new Yaml()
+      var javaConf = yaml.load(stream).asInstanceOf[java.util.HashMap[String, Object]]
+      conf = JavaConverters.mapAsScalaMapConverter(javaConf).asScala
+    }
+    logInfo("------------ Config -----------")
+    conf.map(kv => logInfo(kv.toString()))
+    logInfo("------------ End --------------")
+    conf
+  }
 
   def yesterday(): Calendar = {
     val day = Calendar.getInstance()
