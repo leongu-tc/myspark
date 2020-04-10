@@ -11,11 +11,11 @@ object ClearedStock extends Logging with Cons {
   // index -> (hive table name, hive filter, rowkey cols, hbase table name)
   val sync_list = List(
     // for 55
-    ("temp_ads.rt_cust_cleared_stock", "clear_date", Seq("fund_id","clear_date","stk_cd","market"), "clearedstock:rt_cust_cleared_stock"),
-    ("temp_ads.rt_cust_cleared_stock_detail", "clear_date", Seq("fund_id","stk_cd","market","clear_date","trd_date","trd_sno"), "clearedstock:rt_cust_cleared_stock_detail")
+    // ("temp_ads.rt_cust_cleared_stock", "clear_date", Seq("fund_id","clear_date","stk_cd","market"), "clearedstock:rt_cust_cleared_stock"),
+    // ("temp_ads.rt_cust_cleared_stock_detail", "clear_date", Seq("fund_id","stk_cd","market","clear_date","trd_date","trd_sno"), "clearedstock:rt_cust_cleared_stock_detail")
     // for xianwang
-//    ("ads.rt_cust_cleared_stock", "clear_date", Seq("fund_id","stk_cd","market","clear_date"), "clearedstock:rt_cust_cleared_stock"),
-//    ("ads.rt_cust_cleared_stock_detail", "clear_date", Seq("fund_id","stk_cd","market","clear_date","trd_date","trd_sno"), "clearedstock:rt_cust_cleared_stock_detail")
+    ("ads.rt_cust_cleared_stock", "clear_date", Seq("fund_id","clear_date","stk_cd","market"), "clearedstock:rt_cust_cleared_stock"),
+    ("ads.rt_cust_cleared_stock_detail", "clear_date", Seq("fund_id","stk_cd","market","clear_date","trd_date","trd_sno"), "clearedstock:rt_cust_cleared_stock_detail")
   )
 
   def main(args: Array[String]) {
