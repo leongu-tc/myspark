@@ -3,7 +3,7 @@ package leongu.myspark.session.sql
 import leongu.myspark.Constants
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
 object SparkSqlExample extends Logging{
 
@@ -50,6 +50,8 @@ object SparkSqlExample extends Logging{
     df.createOrReplaceTempView("people")
     val sqlDF = spark.sql("SELECT * FROM people")
     sqlDF.show()
+    // sqlDF.foreachPartition(i => {i.foreach(r => r.length)})
+    sqlDF.rdd.foreachPartition(i => {i.foreach(r => r.length)})
   }
 
   def globalTempView(spark: SparkSession): Unit = {

@@ -1,5 +1,7 @@
 package leongu.myspark.session.streaming
 
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
@@ -9,16 +11,20 @@ object StructuredStreamingExample extends Logging {
   case class Person(name: String, age: Option[Long], job: String)
 
   def main(args: Array[String]) {
+//    val sparkConf = new SparkConf().setAppName("Structured Streaming example").setMaster("local")
+//    val sc = new SparkContext(sparkConf)
     val spark = SparkSession
       .builder()
       // 指定spark集群
-      .master("spark://localhost:7077")
-      //      .master("local")
+//      .master("spark://localhost:7077")
+            .master("local")
       .appName("Structured Streaming example")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
-    basicdf(spark);
+    spark.sparkContext.setLogLevel("WARN")
+
+    socketsource(spark);
 
     println("done!")
   }
