@@ -2,16 +2,18 @@ package leongu.myspark.session.sql
 
 import java.util.Properties
 
+import leongu.myspark._business.util.Utils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SparkSession
 
 object JDBCTest extends Logging {
 
   def main(args: Array[String]) {
+    Utils.readConfFromResources("/mac.yaml")
     val spark = SparkSession
       .builder()
       // 指定spark集群
-      .master("spark://localhost:7077")
+//      .master("spark://localhost:7077")
       //      .master("local")
       .appName("Spark JDBC Example")
       .getOrCreate()

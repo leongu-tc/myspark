@@ -1,0 +1,8 @@
+# hbase
+hbase_quorum: localhost
+hbase_zk_port:  2182
+hbase_zk_parent:  /hbase
+# common
+asset_analysis_job: sync
+#sync_day: 20200114
+bulkload_dir: hdfs://localhost:9000/tmp/asset_analysis_bulkload

@@ -4,8 +4,10 @@ import org.apache.hadoop.hbase.client.{ConnectionFactory, Put}
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
+import org.apache.spark
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.{Row, SparkSession}
 
 object HBaseTests {
 
@@ -13,19 +15,20 @@ object HBaseTests {
     val spark = SparkSession
       .builder()
       //      .master("spark://localhost:7077")
-      //      .master("local")
+            .master("local")
       .appName("Source example")
       .config("spark.some.config.option", "some-value")
       .getOrCreate()
 
-    toHbase(spark.sparkContext)
-    hbasetoConsole(spark.sparkContext)
+//    toHbase(spark.sparkContext)
+    hbasetoConsole(spark)
 
     println("done!")
   }
 
-  def hbasetoConsole(sc: SparkContext): Unit = {
-    val tablename = "t1"
+  def hbasetoConsole(spark: SparkSession): Unit = {
+    val sc = spark.sparkContext
+    val tablename = "clearedstock:rt_cust_cleared_stock"
 
     val hbaseConf = HBaseConfiguration.create()
     hbaseConf.set("hbase.zookeeper.quorum", "localhost")
@@ -60,15 +63,32 @@ object HBaseTests {
 
     val count = hBaseRDD.count()
     println(count)
-    hBaseRDD.foreach { case (_, result) => {
-      //获取行键
+
+    val structField1 = StructField("rowkey", StringType)
+    val structField2 = StructField("col1", StringType)
+
+    val schema = StructType(Seq(structField1, structField2))
+
+    val rdd = hBaseRDD.map(x => {
+      val result = x._2
       val key = Bytes.toString(result.getRow)
       //通过列族和列名获取列
-      val name = Bytes.toString(result.getValue("cf".getBytes, "name".getBytes))
-      val age = Bytes.toString(result.getValue("cf".getBytes, "age".getBytes))
-      println("Row key:" + key + " Name:" + name + " Age:" + age)
-    }
-    }
+      val name = Bytes.toString(result.getValue("cf".getBytes, "col1".getBytes))
+      Row.fromSeq(Seq(key, name))
+    })
+    val df = spark.createDataFrame(rdd, schema)
+    df.show()
+//    hBaseRDD.foreach { case (_, result) => {
+//      //获取行键
+//      val key = Bytes.toString(result.getRow)
+//      //通过列族和列名获取列
+//      val name = Bytes.toString(result.getValue("cf".getBytes, "col1".getBytes))
+//      println("Row key:" + key + " Name:" + name)
+////      val name = Bytes.toString(result.getValue("cf".getBytes, "name".getBytes))
+////      val age = Bytes.toString(result.getValue("cf".getBytes, "age".getBytes))
+////      println("Row key:" + key + " Name:" + name + " Age:" + age)
+//    }
+//    }
   }
 
   def toHbase(sc: SparkContext): Unit = {
@@ -79,7 +99,6 @@ object HBaseTests {
       val hbaseConf = HBaseConfiguration.create()
       hbaseConf.set("hbase.zookeeper.quorum", "localhost")
       hbaseConf.set("hbase.zookeeper.property.clientPort", "2182")
-      hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
       //      hbaseConf.set("hbase.zookeeper.quorum", "sdp-10-88-100-140,sdp-10-88-100-141,sdp-10-88-100-142")
       //      hbaseConf.set("zookeeper.znode.parent", "/hbase-unsecure")
       //      hbaseConf.set("hbase.security.authentication.sdp.publickey", "ItC2TbwGpXPHK9lCS5cGEWI7tzH8AoAnLKtJ")

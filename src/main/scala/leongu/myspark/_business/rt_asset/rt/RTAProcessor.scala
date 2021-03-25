@@ -6,7 +6,7 @@ import org.apache.hadoop.hbase.client.Put
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.streaming.StreamingQuery
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 
 object RTAProcessor extends Logging {
 
@@ -105,8 +105,10 @@ object RTAProcessor extends Logging {
       .queryName("rtstkasset_compute")
       .outputMode("append")
       .format("console")
-      /*.foreachBatch { (df: DataFrame, bid: Long) =>
-        df.foreachPartition(records => {
+      .foreachBatch { (df: DataFrame, bid: Long) =>
+//        df.foreachPartition(records => { // ERR: in scala 2.12
+//         df.rdd.foreachPartition(records => { // add .rdd OK
+          df.foreachPartition((records:Iterator[Row]) => { // specified records type OK too.
           //          println(s"create hbase client ------------------- start, bid = $bid")
           val hbase = ExternalTools.getHBase(conf, conf.getOrElse(HBASE_TBL_STK, "rt_stkasset").toString)
           var hbaseConf = hbase._1
@@ -149,7 +151,7 @@ object RTAProcessor extends Logging {
           //          println("close hbase connection -----------------")
           connection.close()
         })
-      }*/
+      }
       .option("checkpointLocation", "/tmp/checkpoints/rtasset/stk")
       .start()
 
