@@ -79,9 +79,9 @@ object KafkaExample extends Logging {
     df.printSchema()
 
     //    kafkatopic(spark, df)
-    //    kafkatokafkatopic(spark, df)
+        kafkatokafkatopic(spark, df)
     //    kafkatohbase(spark, df)
-    kafkatohbase2(spark, df)
+//    kafkatohbase2(spark, df)
 
 
     println("done!")
@@ -128,6 +128,23 @@ object KafkaExample extends Logging {
       //      .option("kafka.security.protocol", "SASL_SDP")
       //      .option("kafka.sasl.mechanism", "SDP")
       .option("checkpointLocation", "checkpoints")
+      .start()
+
+    query.awaitTermination()
+  }
+
+  def kafkatokafkatopic2(spark: SparkSession, df: DataFrame): Unit = {
+    val query = df.writeStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "localhost:9092")
+      .option("topic", "topic2")
+      //      .option("kafka.bootstrap.servers", "10.88.100.140:6667,10.88.100.141:6667,10.88.100.142:6667")
+      //      .option("kafka.kafka.security.authentication.sdp.publickey", "M2D3lAtKDtCM63kD7i8xYbSieX5EZ73xIevO")
+      //      .option("kafka.kafka.security.authentication.sdp.privatekey", "rZSDd3EiCyvGjEz6UUoFvafY8VyOYhMB")
+      //      .option("kafka.security.protocol", "SASL_SDP")
+      //      .option("kafka.sasl.mechanism", "SDP")
+      .option("checkpointLocation", "checkpoints")
+      .trigger() // TODO
       .start()
 
     query.awaitTermination()
