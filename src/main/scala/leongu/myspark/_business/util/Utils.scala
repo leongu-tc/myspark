@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.{Calendar, Objects}
 
 import org.apache.spark.internal.Logging
+import org.apache.spark.sql.types.{BinaryType, BooleanType, ByteType, DataType, DateType, DecimalType, DoubleType, FloatType, IntegerType, LongType, ShortType, StringType, TimestampType}
 import org.yaml.snakeyaml.Yaml
 
 import scala.collection.{JavaConverters, mutable}
@@ -74,6 +75,36 @@ object Utils extends Logging with Cons {
         df.format(DF1.parse(sdpDataTimeStr)).toString
       } else {
         yesterdayStr(df)
+      }
+    }
+  }
+
+  /**
+   * 类型和 Constants 中的 types 的 values 对应
+   *
+   * @See Constants
+   * @param ftype
+   * @return
+   */
+  def mkSparkType(ftype: String): DataType = {
+    ftype.toLowerCase match {
+      case "string" => StringType
+      case "integer" => IntegerType
+      case "long" => LongType
+      case "double" => DoubleType
+      case "boolean" => BooleanType
+      case "byte" => ByteType
+      case "byte[]" => BinaryType
+      case "short" => ShortType
+      case "float" => FloatType
+      case "java.math.bigdecimal" => DecimalType(24, 6)
+      case "bigdecimal" => DecimalType(24, 6)
+      case "java.sql.date" => DateType
+      case "date" => DateType // supporting "0001-01-01" through "9999-12-31".
+      case "java.sql.timestamp" => TimestampType
+      case "timestamp" => TimestampType
+      case _ => {
+        throw new Exception(s"type: $ftype unsupported yet!")
       }
     }
   }
