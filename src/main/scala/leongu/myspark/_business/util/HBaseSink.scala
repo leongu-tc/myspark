@@ -14,6 +14,9 @@ class HBaseSink[T](createTable: () => Table) extends Serializable {
   def put(put: Put) = {
     table.put(put)
   }
+  def put(puts: java.util.ArrayList[Put]) = {
+    table.put(puts)
+  }
 }
 
 object HBaseSink {

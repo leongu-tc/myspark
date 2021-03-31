@@ -13,7 +13,7 @@ import org.yaml.snakeyaml.Yaml
 import scala.collection.{JavaConverters, mutable}
 import scala.io.Source
 
-object RTBankTrans extends Logging with RTACons {
+object RTBankTransFromJdbc extends Logging with RTACons {
   Logger.getLogger("org").setLevel(Level.WARN)
 
   def main(args: Array[String]) {
