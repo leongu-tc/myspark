@@ -1,5 +1,6 @@
 package org.apache.spark.sql.execution.streaming.sources
 
+import leongu.myspark._business.util.Utils
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.execution.streaming._
@@ -23,7 +24,7 @@ class JDBCStreamSource(
   // ToDo: implement
   // private val maxOffsetsPerTrigger = None
 
-  private val offsetColumn =
+  private var offsetColumn =
     parameters.getOrElse(OFFSET_COLUMN, throw new IllegalArgumentException(s"Parameter not found: $OFFSET_COLUMN"))
 
   override def schema: StructType = df.schema
@@ -33,7 +34,7 @@ class JDBCStreamSource(
   private var currentOffset: Option[JDBCOffset] = None
 
   private def getOffsetValue(sortFunc: String => Column) =
-    Try { df.select(offsetColumn).orderBy(sortFunc(offsetColumn)).as[String].first } match {
+    Try { df.selectExpr(offsetColumn).orderBy(sortFunc(df.selectExpr(offsetColumn).columns(0))).as[String].first } match {
       case Success(value) => Some(value)
       case Failure(ex)    => logWarning(s"Not found offset ${ex.getStackTrace.mkString("\n")}"); None
     }
@@ -85,6 +86,7 @@ class JDBCStreamSource(
   private def getBatchData(range: BatchOffsetRange): DataFrame = {
     val strFilter =
       s"$offsetColumn ${JDBCOffsetFilterType.getStartOperator(range.startInclusion)} CAST('${range.start}' AS ${offsetColumnType.sql}) and $offsetColumn <= CAST('${range.end}' AS ${offsetColumnType.sql})"
+    logInfo("------ strFilter: " + strFilter)
     val filteredDf = df.where(strFilter)
     val rdd = filteredDf.queryExecution.toRdd
 
@@ -148,10 +150,16 @@ class JDBCStreamSource(
     }
 
   private def getType(columnName: String, schema: StructType): DataType = {
-    val sqlField = schema.fields
-      .find(_.name.toLowerCase == columnName.toLowerCase)
-      .getOrElse(throw new IllegalArgumentException(s"Column not found in schema: '$columnName'"))
-    sqlField.dataType
+    val columnParts = columnName.split(":")
+    if (columnParts.size > 1) {
+      this.offsetColumn = columnParts(0)
+      Utils.mkSparkType(columnParts(1))
+    } else {
+      val sqlField = schema.fields
+        .find(_.name.toLowerCase == columnName.toLowerCase)
+        .getOrElse(throw new IllegalArgumentException(s"Column not found in schema: '$columnName'"))
+      sqlField.dataType
+    }
   }
 }
 

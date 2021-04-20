@@ -1,0 +1,36 @@
+# kafka
+kafka_servers: 10.88.0.x:6667,10.88.0.x:6667,10.88.0.x:6667
+kafka_pub: x
+kafka_pri: x
+kafka_topic: ods_centrd_logasset_test
+kafka_protocol: SASL_PLAINTEXT
+kafka_mechanism:  SDP
+kafka_startingOffsets: earliest
+
+# hbase
+hbase_quorum: sdp-10-88-0-x,sdp-10-88-0-x,sdp-10-88-0-x
+hbase_zk_port:  2181
+hbase_zk_parent:  /hbase-unsecure
+hbase_pub: x
+hbase_pri: x
+hbase_user: gulele
+hbase_ns: assetanalysis
+hbase_tbl: rt_cust_bank_trans_log_test
+
+# other config
+checkpoint_location: checkpoints/rt_bank_trans_test
+query: |
+  select trim(string(nvl(sno, ""))) as sno
+       ,trim(string(nvl(custid, ""))) as cust_id
+       ,trim(string(nvl(custname, ""))) as cust_name
+       ,trim(string(nvl(fundid, ""))) as cptl_acid
+       ,reverse(trim(string(nvl(fundid, "")))) as reverse_cptl_acid
+       ,trim(string(nvl(moneytype, ""))) as crrc_cd
+       ,trim(string(nvl(orgid, ""))) as brch_id
+       ,trim(string(nvl(fundeffect, ""))) as cptl_occr_amt
+       ,trim(string(nvl(operdate, ""))) as operdate
+       ,trim(string(nvl(orderdate, ""))) as orde_dt
+       ,trim(string(nvl(ordertime, ""))) as orde_time
+       ,trim(string(nvl(digestid, ""))) as busi_digt_cd
+       ,trim(string(nvl(bizdate, ""))) as etl_dt from tmp_logasset
+     where digestid in ('160021','160022','140055','140057')

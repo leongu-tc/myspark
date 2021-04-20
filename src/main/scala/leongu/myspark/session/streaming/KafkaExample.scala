@@ -144,7 +144,7 @@ object KafkaExample extends Logging {
       //      .option("kafka.security.protocol", "SASL_SDP")
       //      .option("kafka.sasl.mechanism", "SDP")
       .option("checkpointLocation", "checkpoints")
-      .trigger() // TODO
+//      .trigger() // TODO
       .start()
 
     query.awaitTermination()
