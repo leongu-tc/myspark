@@ -153,7 +153,7 @@ trait PointCons {
     s"""SELECT C.cust_id,C.cust_telno,'011401' AS busi_no,'$logDate' AS busi_date, ordersno, fundcode
        |  FROM C INNER JOIN
        |  (SELECT custid AS cust_id, ordersno, ofcode AS fundcode
-       |     FROM centrd.ofmatch WHERE trdid='240059' AND matchdate='$logDate'
+       |     FROM centrd.ofmatch WHERE trdid='240059' AND busi_date='$logDate'
        |  UNION
        |  SELECT V.cust_code AS cust_id, V.app_sno AS ordersno, W.inst_id AS fundcode
        |     FROM otc41.otc_auto_invest_agr V LEFT JOIN otc41.otc_inst_base_info W
@@ -165,10 +165,10 @@ trait PointCons {
        |	FROM C INNER JOIN
        |		(SELECT DISTINCT a.custid FROM
        |			(SELECT * FROM centrd.eccodesign
-       |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0' AND isnewsign='1')a
+       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0' AND isnewsign='1')a
        |		LEFT JOIN
        |			(SELECT * FROM centrd.eccodesign
-       |        WHERE updatedate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus<>'0')b
+       |        WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus<>'0')b
        |		ON a.custid=b.custid
        |		WHERE b.custid is null
        |		) U
@@ -178,10 +178,10 @@ trait PointCons {
        |	FROM C INNER JOIN
        |		(SELECT DISTINCT a.custid FROM
        |			(SELECT * FROM centrd.eccodesign
-       |				WHERE orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0')a
+       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus='0')a
        |		LEFT JOIN
        |			(SELECT * FROM centrd.eccodesign
-       |				WHERE updatedate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus<>'0')b
+       |				WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002325') AND multisettstatus<>'0')b
        |		ON a.custid=b.custid
        |		WHERE b.custid is not null AND a.fundcode<>b.fundcode
        |		) U
@@ -196,10 +196,10 @@ trait PointCons {
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011406' AS busi_no,'$logDate' AS busi_date
        |	FROM C INNER JOIN
        |		(SELECT custid,busi_date FROM centrd.oforder
-       |      WHERE operdate=$logDate AND trdid='240029'
+       |      WHERE busi_date='$logDate' AND operdate=$logDate AND trdid='240029'
        |    UNION
        |    SELECT cust_code AS custid,busi_date FROM otc41.otc_trd_orders
-       |      WHERE app_date=$logDate AND trd_id='129'
+       |      WHERE busi_date='$logDate' AND app_date=$logDate AND trd_id='129'
        |		) U
        |	ON C.cust_id = U.custid
     """.stripMargin,
@@ -211,12 +211,21 @@ trait PointCons {
        |	WHERE U.fund_invest_type = '4'AND U.apply_date='$logDate') AS CU
     """.stripMargin,
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '012101' AS busi_no,'$logDate' AS busi_date
-       |	FROM C INNER JOIN
-       |		(SELECT custid,fundid,min(bizdate) AS bizdate FROM centrd.logasset WHERE digestid=160021 GROUP BY custid,fundid
-       |		union all
-       |		SELECT custid,fundid,min(bizdate) AS bizdate FROM martrd.logasset WHERE digestid=160021 GROUP BY custid,fundid) U
-       |	ON C.cust_id = U.custid
-       |	WHERE U.bizdate='$logDate'
+       |        FROM C LEFT JOIN
+       |                (SELECT custid,busi_date FROM centrd.logbanktran
+       |						WHERE busi_date='$logDate' AND banktranid='1' AND status='2'
+       |                union
+       |                SELECT custid,busi_date FROM martrd.logbanktran
+       |						WHERE busi_date='$logDate' AND banktranid='1' AND status='2' ) U
+       |				ON C.cust_id = U.custid
+       |				left join
+       |				(SELECT custid,busi_date FROM centrd.logbanktran
+       |						WHERE busi_date<'$logDate' AND busi_date>'20200101' AND banktranid='1' AND status='2'
+       |                union
+       |                SELECT custid,busi_date FROM martrd.logbanktran
+       |						WHERE busi_date<'$logDate' AND busi_date>'20200101' AND banktranid='1' AND status='2' ) V
+       |				ON C.custid = V.custid
+       |        WHERE U.custid IS NOT NULL AND V.custid IS NULL
     """.stripMargin
   )
 
