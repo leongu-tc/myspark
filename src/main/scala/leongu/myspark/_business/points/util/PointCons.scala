@@ -224,7 +224,7 @@ trait PointCons {
        |                union
        |                SELECT custid,busi_date FROM martrd.logbanktran
        |						WHERE busi_date<'$logDate' AND busi_date>'20200101' AND banktranid='1' AND status='2' ) V
-       |				ON C.custid = V.custid
+       |				ON C.cust_id = V.custid
        |        WHERE U.custid IS NOT NULL AND V.custid IS NULL
     """.stripMargin
   )
