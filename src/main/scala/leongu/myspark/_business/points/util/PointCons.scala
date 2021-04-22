@@ -62,11 +62,10 @@ trait PointCons {
   val individual_cust = "C" // cust_id,cust_telno
   // individual custom
   lazy val CUSTBASEINFO_SQL = s"SELECT string(custid) as cust_id,mobileno as cust_telno FROM centrd.custbaseinfo WHERE singleflag = 0"
-  // for 165 kbssacct.user_basic_info -> zh20.user_basic_info, kbssacct.cust_agreement -> zh20.cust_agreement
   lazy val busi_sqls = List(
     s""" SELECT CU.cust_id, CU.cust_telno, '010109' as busi_no, '$logDate' as busi_date, C2.orgid
        | FROM (SELECT string(C.custid) as cust_id,C.mobileno as cust_telno
-       |        FROM centrd.custbaseinfo C INNER JOIN kbssacct.user_basic_info as U
+       |        FROM centrd.custbaseinfo C INNER JOIN zh20.user_basic_info as U
        |        ON C.custid == U.user_code
        |        WHERE U.open_source = 1 AND C.opendate = '$logDate' AND C.singleflag = 0) as CU
        | LEFT JOIN centrd.customer as C2 ON CU.cust_id == C2.custid
@@ -75,11 +74,11 @@ trait PointCons {
        | SELECT CCU.cust_id, CCU.cust_telno, '010110' as busi_no, '$logDate' as busi_date, CCU.orgid, C3.commender_name
        | FROM (SELECT CU.cust_id, CU.cust_telno, C2.orgid
        |        FROM (SELECT string(C.custid) as cust_id,C.mobileno as cust_telno
-       |                FROM centrd.custbaseinfo C INNER JOIN kbssacct.user_basic_info as U
+       |                FROM centrd.custbaseinfo C INNER JOIN zh20.user_basic_info as U
        |                ON C.custid == U.user_code
        |                WHERE U.open_source = 1 AND C.opendate = '$logDate' AND C.singleflag = 0) as CU
        |        LEFT JOIN centrd.customer as C2 ON CU.cust_id == C2.custid) AS CCU
-       | INNER JOIN cczq_dev.oa_s_cczq C3 ON CCU.cust_id = C3.cust_code
+       | INNER JOIN yzt.oa_s_cczq C3 ON CCU.cust_id = C3.cust_code
        | WHERE trim(C3.commender_name) IN ($commenders)
      """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'010201' as busi_no, '$logDate' as busi_date
@@ -110,7 +109,7 @@ trait PointCons {
        | AND replace(to_date(U.oper_time),'-','')= '$logDate'
      """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'010701' as busi_no, '$logDate' as busi_date
-       | FROM C INNER JOIN kbssacct.cust_agreement U
+       | FROM C INNER JOIN zh20.cust_agreement U
        | ON C.cust_id = U.cust_code
        | WHERE U.cust_agmt_type = '11' and U.eft_date='$logDate'
      """.stripMargin,
@@ -120,7 +119,7 @@ trait PointCons {
        | WHERE U.fund_invest_type = '1' AND U.apply_date='$logDate'
      """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'010901' as busi_no, '$logDate' as busi_date
-       |  FROM kbssacct.cust_agreement U INNER JOIN C
+       |  FROM zh20.cust_agreement U INNER JOIN C
        |  ON C.cust_id = U.cust_code
        |  WHERE U.cust_agmt_type = '26' AND U.eft_date='$logDate'
      """.stripMargin,
