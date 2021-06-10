@@ -88,7 +88,7 @@ object Points extends Logging with PointCons {
       logInfo(s"... business sql: $query")
       val res = sql(query)
 //      logInfo("count: "+res.count())
-      res.show
+//      res.show
       logInfo(s"... business sql Over: $query")
 
         res.foreach(r => {

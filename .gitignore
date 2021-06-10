@@ -22,3 +22,5 @@ checkpoints/
 # for idea
 .idea/
 *.iml
+# for mac
+.DS_Store
