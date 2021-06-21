@@ -165,10 +165,10 @@ trait PointCons {
        |	FROM C INNER JOIN
        |		(SELECT DISTINCT a.custid FROM
        |			(SELECT * FROM centrd.eccodesign
-       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002325','002829') AND multisettstatus='0' AND isnewsign='1')a
+       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus='0' AND isnewsign='1')a
        |		LEFT JOIN
        |			(SELECT * FROM centrd.eccodesign
-       |        WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002325','002829') AND multisettstatus<>'0')b
+       |        WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus<>'0')b
        |		ON a.custid=b.custid
        |		WHERE b.custid is null
        |		) U
@@ -178,10 +178,10 @@ trait PointCons {
        |	FROM C INNER JOIN
        |		(SELECT DISTINCT a.custid FROM
        |			(SELECT * FROM centrd.eccodesign
-       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002325','002829') AND multisettstatus='0')a
+       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus='0')a
        |		LEFT JOIN
        |			(SELECT * FROM centrd.eccodesign
-       |				WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002325','002829') AND multisettstatus<>'0')b
+       |				WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus<>'0')b
        |		ON a.custid=b.custid
        |		WHERE b.custid is not null AND a.fundcode<>b.fundcode
        |		) U
