@@ -152,40 +152,39 @@ trait PointCons {
      """.stripMargin,
     s"""SELECT C.cust_id,C.cust_telno,'011401' AS busi_no,'$logDate' AS busi_date, ordersno, fundcode
        |  FROM C INNER JOIN
-       |  (SELECT custid AS cust_id, ordersno, ofcode AS fundcode
-       |     FROM centrd.ofmatch WHERE trdid='240059' AND busi_date='$logDate'
-       |  UNION
+       |  (
        |  SELECT V.cust_code AS cust_id, V.app_sno AS ordersno, W.inst_id AS fundcode
        |     FROM otc41.otc_auto_invest_agr V LEFT JOIN otc41.otc_inst_base_info W
        |     ON V.inst_sno = W.inst_sno
        |     WHERE V.agr_stat='1' AND V.app_date='$logDate'
        |  ) U ON C.cust_id = U.cust_id
+       |
      """.stripMargin,
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011403' AS busi_no,'$logDate' AS busi_date
-       |	FROM C INNER JOIN
-       |		(SELECT DISTINCT a.custid FROM
-       |			(SELECT * FROM centrd.eccodesign
-       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus='0' AND isnewsign='1')a
-       |		LEFT JOIN
-       |			(SELECT * FROM centrd.eccodesign
-       |        WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus<>'0')b
-       |		ON a.custid=b.custid
-       |		WHERE b.custid is null
-       |		) U
-       |	ON C.cust_id = U.custid
+       |    FROM C INNER JOIN
+       |        (SELECT DISTINCT a.cust_code FROM
+       |            (SELECT * FROM otc41.otc_ec_sign
+       |                WHERE busi_date='$logDate' AND sign_date='$logDate' AND inst_sno in (9512,9513,9573) AND sign_stat='0' )a
+       |        LEFT JOIN
+       |            (SELECT * FROM otc41.otc_ec_sign
+       |    WHERE busi_date='$logDate' AND from_unixtime(unix_timestamp(to_date(upd_timestamp),'yyyy-MM-dd'),'yyyyMMdd')='$logDate' AND inst_sno in (9512,9513,9573) AND sign_stat<>'0')b
+       |            ON a.cust_code=b.cust_code
+       |            WHERE b.cust_code is null
+       |            ) U
+       |    ON C.cust_id = U.cust_code
     """.stripMargin,
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011404' AS busi_no,'$logDate' AS busi_date
-       |	FROM C INNER JOIN
-       |		(SELECT DISTINCT a.custid FROM
-       |			(SELECT * FROM centrd.eccodesign
-       |				WHERE busi_date='$logDate' AND orderdate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus='0')a
-       |		LEFT JOIN
-       |			(SELECT * FROM centrd.eccodesign
-       |				WHERE busi_date='$logDate' AND updatedate=$logDate AND fundcode in ('000905','000861','002829') AND multisettstatus<>'0')b
-       |		ON a.custid=b.custid
-       |		WHERE b.custid is not null AND a.fundcode<>b.fundcode
-       |		) U
-       |	ON C.cust_id = U.custid
+       |    FROM C INNER JOIN
+       |        (SELECT DISTINCT a.cust_code FROM
+       |            (SELECT * FROM otc41.otc_ec_sign
+       |                WHERE busi_date='$logDate' AND sign_date='$logDate' AND inst_sno in (9512,9513,9573) AND sign_stat='0')a
+       |            LEFT JOIN
+       |            (SELECT * FROM otc41.otc_ec_sign
+       |                WHERE busi_date='$logDate' AND from_unixtime(unix_timestamp(to_date(upd_timestamp),'yyyy-MM-dd'),'yyyyMMdd')='$logDate' AND inst_sno in (9512,9513,9573) AND sign_stat<>'0')b
+       |            ON a.cust_code=b.cust_code
+       |            WHERE b.cust_code is not null AND a.inst_sno<>b.inst_sno
+       |        ) U
+       |    ON C.cust_id = U.cust_code
     """.stripMargin,
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011405' AS busi_no,'$logDate' AS busi_date
        |	FROM C INNER JOIN
@@ -194,14 +193,13 @@ trait PointCons {
        |	ON C.cust_id = U.custid
     """.stripMargin,
     s"""SELECT DISTINCT C.cust_id,C.cust_telno, '011406' AS busi_no,'$logDate' AS busi_date
-       |	FROM C INNER JOIN
-       |		(SELECT custid,busi_date FROM centrd.oforder
-       |      WHERE busi_date='$logDate' AND operdate=$logDate AND trdid='240029'
-       |    UNION
-       |    SELECT cust_code AS custid,busi_date FROM otc41.otc_trd_orders
-       |      WHERE busi_date='$logDate' AND app_date=$logDate AND trd_id='129'
-       |		) U
-       |	ON C.cust_id = U.custid
+       |  FROM C INNER JOIN
+       |  (
+       |  SELECT cust_code AS custid,busi_date FROM otc41.otc_trd_orders
+       |  WHERE busi_date='$logDate' AND app_date=$logDate AND trd_id='129' AND div_method='0'
+       |  ) U
+       |  ON C.cust_id = U.custid
+       |
     """.stripMargin,
     s"""SELECT CU.cust_id,CU.cust_telno,'011407' AS busi_no, '$logDate' AS busi_date
        |	FROM
