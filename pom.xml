@@ -11,7 +11,7 @@
         <scala.version>2.12.8</scala.version>
         <scala.binary.version>2.12</scala.binary.version>
         <spark.version>2.4.3</spark.version>
-        <kafka.version>0.10.0.1-SDP</kafka.version>
+        <kafka.version>0.10.2.2</kafka.version>
         <hadoop.version>2.7.2-SDP</hadoop.version>
         <hbase.version>1.2.1-SDP</hbase.version>
         <metrics-core.version>2.2.0</metrics-core.version>
